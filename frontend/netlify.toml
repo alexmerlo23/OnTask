@@ -1,6 +1,7 @@
 [build]
-  publish = "build" # Directory where your build artifacts are generated
-  command = "npm run build" # Command to create the production build
+  publish = "frontend/build"
+  command = "npm run build"
 
 [dev]
-  command = "npm start" # Command to run your app locally (for Netlify Dev)
+  command = "npm start"
+  publish = "frontend/build"
