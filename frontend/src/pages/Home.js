@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useAuthContext } from "../hooks/useAuthContext";
 import { useEventsContext } from '../hooks/useEventsContext'; 
 import CalendarNav from '../components/CalendarNav';
@@ -11,7 +11,8 @@ const Home = () => {
   const currentDate = new Date().toISOString().split('T')[0]; 
   const [startDate, setStartDate] = useState(currentDate);
 
-  const fetchEvents = async () => {
+  // Use useCallback to memoize the fetchEvents function
+  const fetchEvents = useCallback(async () => {
     const response = await fetch('/api/events', {
       headers: { 'Authorization': `Bearer ${user.token}` },
     });
@@ -30,13 +31,13 @@ const Home = () => {
     } else {
       console.error("Error fetching events:", json);
     }
-  };
+  }, [user, eventDispatch]); // Dependencies for useCallback
 
   useEffect(() => {
     if (user) {
       fetchEvents();
     }
-  }, [fetchEvents, eventDispatch, user]); // Added fetchEvents to the dependency array
+  }, [fetchEvents, user]); // Fetch events when user changes
 
   // DELETE event handler
   const handleDeleteEvent = async (eventId) => {
