@@ -11,7 +11,10 @@ const Home = () => {
   const currentDate = new Date().toISOString().split('T')[0]; 
   const [startDate, setStartDate] = useState(currentDate);
 
+  // Use useCallback to memoize fetchEvents
   const fetchEvents = useCallback(async () => {
+    if (!user) return; // Early exit if user is not defined
+
     const response = await fetch('/api/events', {
       headers: { 'Authorization': `Bearer ${user.token}` },
     });
@@ -30,13 +33,11 @@ const Home = () => {
     } else {
       console.error("Error fetching events:", json);
     }
-  }, [user.token, eventDispatch]); // Dependencies include user.token and eventDispatch
+  }, [user, eventDispatch]); // Only depend on user and eventDispatch
 
   useEffect(() => {
-    if (user) {
-      fetchEvents();
-    }
-  }, [user, eventDispatch, fetchEvents]); // Add fetchEvents to dependencies
+    fetchEvents();
+  }, [fetchEvents]); // Only depend on fetchEvents
 
   // DELETE event handler
   const handleDeleteEvent = async (eventId) => {
