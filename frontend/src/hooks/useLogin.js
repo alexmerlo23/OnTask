@@ -1,37 +1,45 @@
-import { useState } from 'react'
-import { useAuthContext } from './useAuthContext'
+import { useState } from 'react';
 
-export const useLogin = () => {
-  const [error, setError] = useState(null)
-  const [isLoading, setIsLoading] = useState(null)
-  const { dispatch } = useAuthContext()
+const useLogin = () => {
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const login = async (email, password) => {
-    setIsLoading(true)
-    setError(null)
+    setIsLoading(true);
+    setError(null);
 
-    const response = await fetch('/api/user/login', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ email, password })
-    })
-    const json = await response.json()
+    try {
+      const response = await fetch('/api/user/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-    if (!response.ok) {
-      setIsLoading(false)
-      setError(json.error)
+      if (!response.ok) {
+        throw new Error('Failed to login'); // Throw an error if response is not ok
+      }
+
+      const json = await response.json();
+
+      // Check if the response body is empty
+      if (!json) {
+        throw new Error('Unexpected response format'); // Handle empty response
+      }
+
+      // Assume you store the user token and other user data
+      localStorage.setItem('user', JSON.stringify(json));
+      setIsLoading(false);
+      return json; // Return the user data if needed
+    } catch (err) {
+      setIsLoading(false);
+      setError(err.message);
+      console.error("Login error:", err);
     }
-    if (response.ok) {
-      // save the user to local storage
-      localStorage.setItem('user', JSON.stringify(json))
+  };
 
-      // update the auth context
-      dispatch({type: 'LOGIN', payload: json})
+  return { login, error, isLoading };
+};
 
-      // update loading state
-      setIsLoading(false)
-    }
-  }
-
-  return { login, isLoading, error }
-}
+export default useLogin;
