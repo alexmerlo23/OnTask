@@ -36,7 +36,7 @@ const Home = () => {
     if (user) {
       fetchEvents();
     }
-  }, [eventDispatch, user]);
+  }, [fetchEvents, eventDispatch, user]); // Added fetchEvents to the dependency array
 
   // DELETE event handler
   const handleDeleteEvent = async (eventId) => {
