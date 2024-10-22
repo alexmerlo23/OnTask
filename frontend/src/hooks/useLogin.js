@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-const useLogin = () => {
+export const useLogin = () => {
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
