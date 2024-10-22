@@ -1,7 +1,5 @@
 import React from 'react';
 import { DayPilotCalendar } from "@daypilot/daypilot-lite-react";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
-import { faTrash, faEdit } from '@fortawesome/free-solid-svg-icons';
 
 const Calendar = ({ startDate, events, onDeleteEvent, onEditEvent }) => {
 
