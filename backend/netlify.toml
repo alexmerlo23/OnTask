@@ -1,0 +1,19 @@
+[build]
+  # Define the directory containing your serverless functions
+  functions = "netlify/functions"   # This points to where your backend functions are located
+  publish = "build"                  # If you have any static assets to serve (e.g., from a build step)
+  command = "npm run build"          # If you need a custom build process for your backend, e.g., a bundler
+
+[dev]
+  # This is for local development; you'll need to specify how to run your backend locally
+  command = "npm run start"          # Make sure this starts your backend server locally (e.g., "node server.js")
+  publish = "build"                  # This can be used if you serve static assets locally as well
+
+[[redirects]]
+  # Redirect API requests to the serverless functions
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"  # Route API requests to the functions
+  status = 200
+
+[[plugins]]
+  package = "@netlify/plugin-functions-install-core"  # If you're using serverless functions, this ensures the functions are installed correctly
