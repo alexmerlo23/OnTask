@@ -10,8 +10,8 @@ const EventForm = ({ fetchEvents }) => {
   const [date, setDate] = useState('');
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
-  const [color, setColor] = useState('');  // Color state
-  const [type, setType] = useState('');    // Type state
+  const [color, setColor] = useState('');  
+  const [type, setType] = useState('');    
   const [error, setError] = useState(null);
   const [emptyFields, setEmptyFields] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
