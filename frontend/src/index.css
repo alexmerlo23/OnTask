@@ -120,6 +120,10 @@ nav button {
   font-size: 1em;
 }
 
+nav button:hover{
+  transform: scale(1.05);
+}
+
 /* auth forms */
 form.signup, form.login {
   max-width: 400px;
@@ -127,6 +131,14 @@ form.signup, form.login {
   padding: 20px;
   background: #fff;
   border-radius: 4px;
+}
+
+form.signup button:hover{
+  transform: scale(1.05);
+}
+
+form.login button:hover{
+  transform: scale(1.05);
 }
 
 .RoleButtonsContainer {
@@ -151,6 +163,7 @@ form.signup, form.login {
 /* Optional: Hover state */
 .role-button:hover {
   background-color: var(--primary); /* Change this as needed */
+  transform: scale(1.05);
 }
 .hamburger-container {
   position: relative;
@@ -195,10 +208,106 @@ form.signup, form.login {
 
 .calendar_default_event_inner {
     background: #2e78d6;
-    color: #fff;
+    color: #fff !important;
     border: none;
     border-radius: 5px;
     font-size: 10pt;
     padding: 5px;
-    opacity: 0.8;
+}
+
+/* Modal Begins */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Ensure it sits on top of other content */
+}
+
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 300px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.close-modal {
+  background: #ccc;
+  padding: 8px 12px;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  margin-top: 10px;
+}
+/* Modal Ends */
+
+.add-event-button {
+  background-color: #1aac83;
+  color: white;
+  width: 100px;
+  height: 40px;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+
+.add-event-button:hover {
+  background-color: #179C74;
+  transform: scale(1.05);
+}
+
+/* Default button style */
+.submit {
+  background-color: #179C74; /* Green background */
+  color: white; /* White text */
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s, transform 0.3s; /* Smooth transition for background color and scaling */
+}
+
+/* Hover effect */
+.submit:hover {
+  background-color: #179C74; /* Darker green when hovered */
+  transform: scale(1.05); /* Slightly enlarge the button */
+}
+
+/* Optionally, you can also add an active effect when the button is clicked */
+.submit:active {
+  background-color: #179C74; /* Even darker green on click */
+  transform: scale(1); /* Reset scale on click */
+}
+
+/* Event Color Picker */
+.color-picker {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.color-circle {
+  width: 19px;
+  height: 19px;
+  border-radius: 50%;
+  
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: transform 0.3s;
+}
+
+.color-circle:hover {
+  transform: scale(1.1);
+}
+
+.color-circle.selected {
+  border: 2px solid #000;
 }

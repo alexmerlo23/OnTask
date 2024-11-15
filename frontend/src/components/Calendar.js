@@ -5,10 +5,10 @@ const Calendar = ({ startDate, events, onDeleteEvent, onEditEvent }) => {
 
   const formattedEvents = events.map(event => ({
     id: event.id,
-    text: event.text,  // Text displayed in the event
+    text: event.text,
     start: new Date(event.start).toISOString(),
     end: new Date(event.end).toISOString(),
-    backColor: event.backColor || "#ffffff",
+    backColor: event.color || "#ffffff",
     participants: event.participants || 0,
   }));
 
@@ -18,28 +18,29 @@ const Calendar = ({ startDate, events, onDeleteEvent, onEditEvent }) => {
     startDate: startDate,
     events: formattedEvents,
     
-    // Custom render event
     onBeforeEventRender: args => {
-        args.data.html = `
-          <div style="display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
-            <div>${args.data.text}</div>
-            <div style="display: flex; justify-content: center; gap: 10px; margin-top: 5px;">
-              <span class="edit-icon" style="cursor: pointer;">✏️</span>
-              <span class="delete-icon" style="cursor: pointer;">🗑️</span>
-            </div>
-          </div>`;
-      },
+      args.data.html = `
+        <div style="display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
+          <div>${args.data.text}</div>
+          <div style="display: flex; justify-content: center; gap: 10px; margin-top: 5px;">
+            ${onEditEvent ? '<span class="edit-icon" style="cursor: pointer;">✏️</span>' : ''}
+            ${onDeleteEvent ? '<span class="delete-icon" style="cursor: pointer;">🗑️</span>' : ''}
+          </div>
+        </div>`;
+    },
 
-    // Handle clicking on event icons
+    // Conditionally handle event clicks only if edit/delete is allowed
     onEventClick: args => {
-      const eventId = args.e.id();
-      const target = args.originalEvent.target;
+      if (onDeleteEvent || onEditEvent) {
+        const eventId = args.e.id();
+        const target = args.originalEvent.target;
 
-      if (target.classList.contains("delete-icon")) {
-        onDeleteEvent(eventId);
-      } else if (target.classList.contains("edit-icon")) {
-        const event = formattedEvents.find(event => event.id === eventId);
-        onEditEvent(eventId, event);
+        if (onDeleteEvent && target.classList.contains("delete-icon")) {
+          onDeleteEvent(eventId);
+        } else if (onEditEvent && target.classList.contains("edit-icon")) {
+          const event = formattedEvents.find(event => event.id === eventId);
+          onEditEvent(eventId, event);
+        }
       }
     }
   };
