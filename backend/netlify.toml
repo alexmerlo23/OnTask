@@ -2,7 +2,7 @@
   # Define the directory containing your serverless functions
   functions = "netlify/functions"   # This points to where your backend functions are located
   publish = "build"                  # If you have any static assets to serve (e.g., from a build step)
-  command = "npm run build"          # If you need a custom build process for your backend, e.g., a bundler
+  command = "npm start"          # If you need a custom build process for your backend, e.g., a bundler
 
 [dev]
   # This is for local development; you'll need to specify how to run your backend locally
