@@ -15,7 +15,7 @@ const EventForm = () => {
   const [error, setError] = useState(null);
   const [emptyFields, setEmptyFields] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [typeOptions, setTypeOptions] = useState(['Homework', 'Test', 'Document', 'Other']);
+  const [typeOptions] = ['Homework', 'Test', 'Document', 'Other'];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
