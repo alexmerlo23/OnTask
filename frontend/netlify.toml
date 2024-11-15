@@ -1,8 +1,8 @@
 [build]
-  publish = "frontend/build"
+  publish = "build"
   command = "npm run build"
 
 [dev]
   command = "npm start"
-  publish = "frontend/build"
+  publish = "build"
 
