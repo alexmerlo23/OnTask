@@ -1,0 +1,15 @@
+[build]
+<<<<<<< HEAD
+  publish = "build"
+=======
+  publish = "frontend/build"
+>>>>>>> 74cef31c53446458318958f397d10b24a7430297
+  command = "npm run build"
+
+[dev]
+  command = "npm start"
+<<<<<<< HEAD
+  publish = "build"
+=======
+  publish = "frontend/build"
+>>>>>>> 74cef31c53446458318958f397d10b24a7430297
