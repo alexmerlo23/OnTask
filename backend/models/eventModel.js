@@ -25,9 +25,8 @@ const eventSchema = new Schema({
     type: String, // or Date
     required: true,
   },
-  user_id: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+  classroom: {
+    type: String,
     required: true,
   },
 }, { timestamps: true });

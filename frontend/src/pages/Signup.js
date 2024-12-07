@@ -2,17 +2,23 @@ import { useState } from "react";
 import { useSignup } from "../hooks/useSignup";
 
 const Signup = () => {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { signup, error, isLoading } = useSignup();
   const [selectedRole, setSelectedRole] = useState('student');
+  const [code, setCode] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Pass email, password, and selected role to signup
-    await signup(email, password, selectedRole);
+
+    await signup(email, password, selectedRole, code, name);
   };
+/*
+  const handleClassClick = async (e) => {
+    e.preventDefault()
+    await signupClass(email, classroomName, code);
+  }*/
 
   const handleButtonClick = (buttonName) => {
     setSelectedRole(buttonName === selectedRole ? selectedRole : buttonName);
@@ -21,37 +27,33 @@ const Signup = () => {
   return (
     <form className="signup" onSubmit={handleSubmit}>
       <h3>Sign Up</h3>
-      
-      {selectedRole === 'student' && (
-        <>
-          <label>Student Name:</label>
-          <input type="text" name="name" required />
-        </>
-      )}
-      
-      {selectedRole === 'teacher' && (
-        <>
-          <label>Class Name:</label>
-          <input type="text" name="className" required />
-          <label>Name:</label>
-          <input type="text" name="name" required />
-        </>
-      )}
-      
+
+      <label>Name:</label>
+      <input 
+        type="text" 
+        onChange={(e) => setName(e.target.value)} 
+        value={name} 
+      />
+
       <label>Email address:</label>
       <input 
         type="email" 
         onChange={(e) => setEmail(e.target.value)} 
         value={email} 
       />
-      
+
       <label>Password:</label>
       <input 
         type="password" 
         onChange={(e) => setPassword(e.target.value)} 
         value={password} 
       />
-      
+
+      <input 
+        type="hidden"  
+        value={code} 
+      />
+
       <div className="RoleButtonsContainer">
         <button 
           className={`role-button ${selectedRole === 'student' ? 'active' : ''}`} 
@@ -68,11 +70,14 @@ const Signup = () => {
           I'm a Teacher
         </button>
       </div>
-      
+
       <button disabled={isLoading}>Sign up</button>
-      {error && <div className="error">{error}</div>}
-    </form>
-  );
+          {error && <div className="error">{error}</div>}
+        </form>
+
+);
 };
+
+
 
 export default Signup;

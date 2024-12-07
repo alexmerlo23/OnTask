@@ -12,10 +12,11 @@ const EventForm = () => {
   const [endTime, setEndTime] = useState('');
   const [color, setColor] = useState('');
   const [type, setType] = useState('');
+  const [classroom, setClassroom] = useState(user.code);
   const [error, setError] = useState(null);
   const [emptyFields, setEmptyFields] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [typeOptions] = ['Homework', 'Test', 'Document', 'Other'];
+  const [typeOptions, setTypeOptions] = useState(['Homework', 'Test', 'Document', 'Other']);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -44,7 +45,7 @@ const EventForm = () => {
       type,
       start: start.toISOString(),
       end: end.toISOString(),
-      user_id: user.id
+      classroom
     };
 
     try {
@@ -59,6 +60,7 @@ const EventForm = () => {
 
       if (!response.ok) {
         const json = await response.json();
+        console.log(json)
         setError(json.error || 'Something went wrong');
         setEmptyFields(json.emptyFields || []);
       } else {
@@ -167,6 +169,11 @@ const EventForm = () => {
                 onChange={(e) => setEndTime(e.target.value)}
                 value={endTime}
                 className={emptyFields.includes('endTime') ? 'error' : ''}
+              />
+
+              <input 
+                type="hidden"
+                value={classroom}
               />
 
               <button type="submit" className="submit">Add Event</button>

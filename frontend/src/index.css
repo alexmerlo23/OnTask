@@ -124,6 +124,123 @@ nav button:hover{
   transform: scale(1.05);
 }
 
+/* New Login UI */
+.login-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.login-content {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  flex: 1;
+  margin-top: 40px;
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.left-section {
+  flex: 1;
+  margin-right: 60px;
+}
+
+.left-section p {
+  font-size: 16px;
+  color: #555;
+}
+
+.left-section h2 {
+  font-size: 28px;
+  color: var(--primary);
+  margin-bottom: 15px;
+}
+
+
+.login-form {
+  width: 400px;
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.login-form h3 {
+  margin-bottom: 20px;
+  font-size: 20px;
+}
+
+.login-form label {
+  font-size: 14px;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.login-form input {
+  padding: 10px;
+  margin-top: 10px;
+  margin-bottom: 20px;
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.login-form button {
+  background: var(--primary);
+  border: none;
+  color: #fff;
+  padding: 10px;
+  font-family: "Poppins";
+  border-radius: 4px;
+  cursor: pointer;
+  width: 100%;
+}
+.login-form button:hover {
+  transform: scale(1.02);
+  background-color: #179C74;
+}
+
+.login-form button:disabled {
+  background: #ddd;
+  cursor: not-allowed;
+}
+
+.login-form .error {
+  padding: 10px;
+  background: #ffefef;
+  border: 1px solid var(--error);
+  color: var(--error);
+  border-radius: 4px;
+  margin-top: 20px;
+}
+
+.login-form input.error {
+  border: 1px solid var(--error);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .login-content {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .left-section {
+    margin-right: 0;
+    text-align: center;
+  }
+
+  .login-form {
+    width: 90%;
+  }
+}
+
+
+
+
 /* auth forms */
 form.signup, form.login {
   max-width: 400px;
@@ -137,9 +254,13 @@ form.signup button:hover{
   transform: scale(1.05);
 }
 
+/* Not needed after changing Login Page UI*/
+/*
 form.login button:hover{
   transform: scale(1.05);
+  background-color: #179C74;
 }
+*/
 
 .RoleButtonsContainer {
   width: 100%;
@@ -156,8 +277,9 @@ form.login button:hover{
 }
 
 .role-button.active {
-  background-color: var(--primary); /* Change to the desired active color */
+  background-color: #00996e; /* Change to the desired active color */
   color: black; /* Change text color if needed */
+  font-weight: 600;
 }
 
 /* Optional: Hover state */
@@ -270,6 +392,7 @@ form.login button:hover{
   color: white; /* White text */
   border: none;
   padding: 10px 20px;
+  margin: 5px;
   font-size: 16px;
   cursor: pointer;
   border-radius: 5px;
@@ -379,4 +502,32 @@ form.login button:hover{
 
 .submit:hover{
   color:#fff;
+}
+
+/*Account Page*/
+
+.account {
+  max-width: 800px;
+  margin: 40px auto;
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.account h1 {
+  font-size: 2em;
+  margin-bottom: 20px;
+  color: var(--primary);
+}
+
+.account p {
+  font-size: 1em;
+  margin-bottom: 10px;
+  color: #555;
+}
+
+.account p span {
+  font-weight: bold;
+  color: var(--primary);
 }

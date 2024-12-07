@@ -1,12 +1,14 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useAuthContext } from "../hooks/useAuthContext";
 import { useEventsContext } from '../hooks/useEventsContext'; 
+import { useClassContext } from '../hooks/useClassContext'
 import CalendarNav from '../components/CalendarNav';
 import Calendar from '../components/Calendar';
 
 const Home = () => {
   const { user } = useAuthContext();
   const { events = [], dispatch: eventDispatch } = useEventsContext(); // Default to an empty array
+  const { classroom } = useClassContext();
   const currentDate = new Date().toISOString().split('T')[0]; 
   const [startDate, setStartDate] = useState(currentDate);
 
@@ -24,6 +26,8 @@ const Home = () => {
         end: event.end,
         backColor: event.color || "#ffffff",
         participants: event.participants || 0,
+        type: event.type,
+        classroom: event.classroom
       }));
       console.log("Mapped Events Array: ", mappedEvents); 
       eventDispatch({ type: 'SET_EVENTS', payload: mappedEvents });
@@ -69,6 +73,7 @@ const Home = () => {
     } else {
       console.error("Failed to edit event");
     }
+    window.location.reload();
   };
 
   return (

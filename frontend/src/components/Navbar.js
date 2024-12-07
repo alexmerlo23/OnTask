@@ -3,6 +3,8 @@ import { useLogout } from '../hooks/useLogout';
 import { useAuthContext } from '../hooks/useAuthContext';
 import HamburgerMenu from './HamburgerMenu';
 import EventForm from '../components/CalendarForm';
+import ClassroomForm from '../components/ClassroomForm';
+import JoinClass from '../components/JoinClass';
 
 const Navbar = ({ fetchEvents }) => {
   const { logout } = useLogout();
@@ -32,7 +34,13 @@ const Navbar = ({ fetchEvents }) => {
               <button onClick={handleClick} style={{ marginLeft: '1rem' }}>Log out</button>
               {user.role === 'teacher' && (
                 <div style={{ marginLeft: '1rem' }}>
+                  {!user.code && <ClassroomForm />}
                   <EventForm fetchEvents={fetchEvents} />
+                </div>
+              )}
+              {user.role === 'student' && (
+                <div style={{ marginLeft: '1rem' }}>
+                  {user.code === '' && <JoinClass />}
                 </div>
               )}
             </div>

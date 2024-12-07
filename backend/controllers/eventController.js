@@ -3,10 +3,11 @@ const mongoose = require('mongoose');
 
 // Get all events
 const getEvents = async (req, res) => {
-  const user_id = req.user._id;
+  const classCode = req.user.code;
 
   try {
-    const events = await Event.find({ user_id }).sort({ createdAt: -1 });
+    const events = await Event.find({ classCode }).sort({ createdAt: -1 });
+    console.log(events)
     console.log("Fetched events:", events); // Log the events fetched from the database
     res.status(200).json(events);
   } catch (error) {
@@ -39,7 +40,7 @@ const getEvent = async (req, res) => {
 // Create new event
 const createEvent = async (req, res) => {
   console.log("Request received:", req.body); // Log the request body to see what was sent
-  const { text, type, color, start, end } = req.body;
+  const { text, type, color, start, end, classroom } = req.body;
   let emptyFields = [];
 
   if (!text) emptyFields.push('text');
@@ -47,14 +48,15 @@ const createEvent = async (req, res) => {
   if (!color) emptyFields.push('color');
   if (!start) emptyFields.push('start');
   if (!end) emptyFields.push('end');
+  if (!classroom) emptyFields.push('classroom');
 
   if (emptyFields.length > 0) {
     return res.status(400).json({ error: 'Please fill in all the fields', emptyFields });
   }
 
   try {
-    const user_id = req.user._id;
-    const event = await Event.create({ text, type, color, start, end, user_id });
+    console.log('Creating event with:', { text, type, color, start, end, classroom });
+    const event = await Event.create({ text, type, color, start, end, classroom });
     console.log("Event saved:", event); // Log the saved event to check if color is saved
     res.status(200).json(event);
   } catch (error) {
