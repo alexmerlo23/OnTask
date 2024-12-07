@@ -10,7 +10,7 @@ export const useLogin = () => {
     setIsLoading(true)
     setError(null)
 
-    const response = await fetch(`${process.env.REACT_APP_API_URL}/api/user/login`, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/api/user/login`, {  //Modified for deployment
 
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
