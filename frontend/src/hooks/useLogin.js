@@ -7,32 +7,43 @@ export const useLogin = () => {
   const { dispatch } = useAuthContext()
 
   const login = async (email, password) => {
-    setIsLoading(true)
-    setError(null)
-
-    const response = await fetch(`${process.env.REACT_APP_API_URL}/api/user/login`, {  //Modified for deployment
-
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ email, password })
-    })
-    const json = await response.json()
-
-    if (!response.ok) {
-      setIsLoading(false)
-      setError(json.error)
+    setIsLoading(true);
+    setError(null);
+  
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/user/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+  
+      let json;
+      try {
+        json = await response.json(); // Try parsing the response as JSON
+      } catch (err) {
+        json = null; // If parsing fails, set json to null
+      }
+  
+      if (!response.ok) {
+        setIsLoading(false);
+        setError(json?.error || 'Something went wrong'); // Fallback error message
+        return;
+      }
+  
+      // Save the user to local storage
+      localStorage.setItem('user', JSON.stringify(json));
+  
+      // Update the auth context
+      dispatch({ type: 'LOGIN', payload: json });
+  
+      // Update loading state
+      setIsLoading(false);
+    } catch (error) {
+      setError('Failed to connect to the server'); // Network error handling
+      setIsLoading(false);
     }
-    if (response.ok) {
-      // save the user to local storage
-      localStorage.setItem('user', JSON.stringify(json))
-
-      // update the auth context
-      dispatch({type: 'LOGIN', payload: json})
-
-      // update loading state
-      setIsLoading(false)
-    }
-  }
+  };
+  
 
   return { login, isLoading, error }
 }

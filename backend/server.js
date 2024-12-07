@@ -11,8 +11,7 @@ const classRoutes = require('./routes/classroom');
 const app = express();
 
 // Enable CORS
-app.use(cors());
-
+app.use(cors({ origin: 'https://ontask-1.onrender.com' })); // Update for your frontend URL
 // middleware
 app.use(express.json());
 
