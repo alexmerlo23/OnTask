@@ -11,7 +11,7 @@ const classRoutes = require('./routes/classroom');
 const app = express();
 
 // Enable CORS
-app.use(cors()); // Update for your frontend URL
+app.use(cors({ origin: 'https://ontask-1.onrender.com' }));
 // middleware
 app.use(express.json());
 
@@ -29,7 +29,7 @@ app.use('/api/classes', classRoutes);
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
     // listen for requests
-    app.listen(process.env.PORT || 3001, () => {
+    app.listen(process.env.PORT || 10000, () => {
       console.log('connected to db & listening on port', process.env.PORT);
     });
   })
