@@ -6,12 +6,7 @@ const { loginUser, signupUser, updateCode } = require('../controllers/userContro
 const router = express.Router()
 
 // login route
-
-router.post('/login', (req, res) => {
-    console.log("Login attempt", req.body);
-    loginUser(req, res); // Assuming loginUser is the controller function
-  });
-  
+router.post('/login', loginUser)
 
 // signup route
 router.post('/signup', signupUser)
