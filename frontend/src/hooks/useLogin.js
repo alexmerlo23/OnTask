@@ -9,9 +9,12 @@ export const useLogin = () => {
   const login = async (email, password) => {
     setIsLoading(true);
     setError(null);
-  
+    
+    const apiUrl = `${process.env.REACT_APP_API_URL}/api/user/login`;
+    console.log('Request URL:', apiUrl);
+
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/user/login`, {
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
