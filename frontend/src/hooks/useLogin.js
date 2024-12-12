@@ -10,6 +10,7 @@ export const useLogin = () => {
     setIsLoading(true)
     setError(null)
 
+    // post to user login
     const response = await fetch('/api/user/login', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
@@ -17,7 +18,7 @@ export const useLogin = () => {
     })
     const json = await response.json()
 
-    if (!response.ok) {
+    if (!response.ok) { // if post fails
       setIsLoading(false)
       setError(json.error)
     }

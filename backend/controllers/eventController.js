@@ -6,9 +6,9 @@ const getEvents = async (req, res) => {
   const classCode = req.user.code;
 
   try {
+    // search events based on class code
     const events = await Event.find({ classCode }).sort({ createdAt: -1 });
     console.log(events)
-    console.log("Fetched events:", events); // Log the events fetched from the database
     res.status(200).json(events);
   } catch (error) {
     console.error("Error fetching events:", error); // Log error if there's an issue
@@ -25,8 +25,8 @@ const getEvent = async (req, res) => {
   }
 
   try {
+    // search event by event id
     const event = await Event.findById(id);
-    console.log("Fetched event:", event); // Log the single event
     if (!event) {
       return res.status(404).json({ error: 'No such event' });
     }
@@ -39,8 +39,9 @@ const getEvent = async (req, res) => {
 
 // Create new event
 const createEvent = async (req, res) => {
-  console.log("Request received:", req.body); // Log the request body to see what was sent
   const { text, type, color, start, end, classroom } = req.body;
+
+  // make sure all fields are filled
   let emptyFields = [];
 
   if (!text) emptyFields.push('text');
@@ -55,7 +56,7 @@ const createEvent = async (req, res) => {
   }
 
   try {
-    console.log('Creating event with:', { text, type, color, start, end, classroom });
+    // create the event
     const event = await Event.create({ text, type, color, start, end, classroom });
     console.log("Event saved:", event); // Log the saved event to check if color is saved
     res.status(200).json(event);
@@ -74,8 +75,7 @@ const deleteEvent = async (req, res) => {
   }
 
   try {
-    const event = await Event.findOneAndDelete({ _id: id });
-    console.log("Event deleted:", event); // Log the deleted event
+    const event = await Event.findOneAndDelete({ _id: id }); // searches event by id and deletes it
     if (!event) {
       return res.status(400).json({ error: 'No such event' });
     }
@@ -95,10 +95,10 @@ const updateEvent = async (req, res) => {
   }
 
   try {
+    // searches the event by id and updates the changes
     const event = await Event.findOneAndUpdate({ _id: id }, {
       ...req.body,
     }, { new: true });
-    console.log("Event updated:", event); // Log the updated event
     if (!event) {
       return res.status(400).json({ error: 'No such event' });
     }

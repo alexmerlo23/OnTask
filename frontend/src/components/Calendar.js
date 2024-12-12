@@ -6,24 +6,33 @@ const Calendar = ({ startDate, events, onDeleteEvent, onEditEvent }) => {
   const { user } = useAuthContext();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isParentVerificationModalOpen, setIsParentVerificationModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [isParentCodeVerified, setIsParentCodeVerified] = useState(false);  // Track if the parent code is verified
+  const [enteredCode, setEnteredCode] = useState('');  // Store entered code
+  const [isCodeCorrect, setIsCodeCorrect] = useState(false);  // Track if code is correct
 
+
+  // opens modal for event info
   const openModal = (event) => {
-
-    setSelectedEvent(event);  // Store the selected event
-    setIsModalOpen(true);     // Open the modal
+    setSelectedEvent(event);
+    setIsModalOpen(true);
   };
-  const closeModal = () => setIsModalOpen(false);  // Close the modal
+
+  const closeModal = () => setIsModalOpen(false); // function to close event info modal
+  const closeParentVerificationModal = () => setIsParentVerificationModalOpen(false); // closes parent verification modal
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
+  // function to open edit event modal
   const openEditModal = (event) => {
-
-    setSelectedEvent(event);  // Store the selected event
-    setIsEditModalOpen(true);     // Open the modal
+    setSelectedEvent(event);
+    setIsEditModalOpen(true);
   };
-  const closeEditModal = () => setIsEditModalOpen(false);  // Close the modal
 
+  const closeEditModal = () => setIsEditModalOpen(false); // function to close edit event modal
+
+  // state variables to help with form submission
   const [text, setText] = useState('');
   const [date, setDate] = useState('');
   const [startTime, setStartTime] = useState('');
@@ -33,19 +42,22 @@ const Calendar = ({ startDate, events, onDeleteEvent, onEditEvent }) => {
   const [classroom, setClassroom] = useState('');
   const [error, setError] = useState(null);
   const [emptyFields, setEmptyFields] = useState([]);
-  const [typeOptions, setTypeOptions] = useState(['Homework', 'Test', 'Document', 'Other']);
+  const typeOptions = ['Homework', 'Test', 'Document', 'Other'];
 
   const colorOptions = [
     'Black', 'Grey', 'Red', 'OrangeRed', 'MediumVioletRed',
     'Purple', 'BlueViolet', 'RoyalBlue', 'DarkBlue', 'ForestGreen'
   ];
 
+  // separates the date and time string into two strings
   function separateDateTime(dateTime) {
     const parts = dateTime.split('T');
-    const date = parts[0]; // The date part
-    const time = parts[1]; // The time part
+    const date = parts[0];
+    const time = parts[1];
     return { date, time };
   }
+
+  // maps events
   const formattedEvents = events.map(event => ({
     id: event.id,
     text: event.text,
@@ -57,35 +69,75 @@ const Calendar = ({ startDate, events, onDeleteEvent, onEditEvent }) => {
     classroom: event.classroom
   }));
 
+  // configures the calendar based on user role
   const config = {
     viewType: "Week",
     durationBarVisible: false,
     startDate: startDate,
     events: formattedEvents,
-
+  
     onBeforeEventRender: args => {
-      args.data.backColor = args.data.backColor || "#ffffff"; // Fallback to white if no color
-      args.data.html = `
-        <div style="display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
-          <div>${args.data.text}</div>
-          <div style="display: flex; justify-content: center; gap: 10px; margin-top: 5px;">
-            ${onEditEvent ? '<span class="edit-icon" style="cursor: pointer;">✏️</span>' : ''}
-            ${onDeleteEvent ? '<span class="delete-icon" style="cursor: pointer;">🗑️</span>' : ''}
-          </div>
-        </div>`;
-    },
-
-    // Conditionally handle event clicks only if edit/delete is allowed
+      args.data.backColor = args.data.backColor || "#ffffff";
+    
+      if (user && user.role === 'student') {
+        if (isParentCodeVerified) {
+          args.data.html = `
+            <div style="display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
+              <div>${args.data.text}</div>
+              <div style="color: green;">✅</div>
+            </div>`;
+        } else {
+          args.data.html = `
+            <div style="display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
+              <div>${args.data.text}</div>
+              <div class="verify-parent-code" style="cursor: pointer; color: red;">
+                ☑️
+              </div>
+            </div>`;
+        }
+        
+      } else if (user && user.role !== 'student') {
+        args.data.html = `
+          <div style="display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
+            <div>${args.data.text}</div>
+            <div style="display: flex; justify-content: center; gap: 10px; margin-top: 5px;">
+              ${onEditEvent ? '<span class="edit-icon" style="cursor: pointer;">✏️</span>' : ''}
+              ${onDeleteEvent ? '<span class="delete-icon" style="cursor: pointer;">🗑️</span>' : ''}
+            </div>
+          </div>`;
+      } else {
+        args.data.html = `
+          <div style="display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
+            <div>${args.data.text}</div>
+            <div style="margin-top: 5px;"></div>
+          </div>`;
+      }
+    }
+    ,
+  
+    // when the user clicks on the event
     onEventClick: args => {
+      const target = args.originalEvent.target;
+    
+      // Prevent opening the parent code verification modal if clicked on the checkmark and the parent code is not verified
+      if (target.classList.contains('verify-parent-code') && !isParentCodeVerified) {
+        openParentCodeVerificationModal();  // Open the verification modal
+        return;  // Exit early so the event details modal doesn't open
+      }
+    
+      // Handle other event clicks (Edit/Delete)
       if (onDeleteEvent || onEditEvent) {
         const eventId = args.e.id();
-        const target = args.originalEvent.target;
-
+    
+        // handles if delete is clicked
         if (onDeleteEvent && target.classList.contains("delete-icon")) {
           onDeleteEvent(eventId);
+
+          // handles if the edit icon is clicked
         } else if (onEditEvent && target.classList.contains("edit-icon")) {
           const event = formattedEvents.find(event => event.id === eventId);
-
+    
+          // sets the forms default values to the current event info
           const { date: eventStartDate, time: eventStartTime } = separateDateTime(event.start.toString());
           const { date: eventEndDate, time: eventEndTime } = separateDateTime(event.end.toString());
           setText(event.text);
@@ -95,16 +147,42 @@ const Calendar = ({ startDate, events, onDeleteEvent, onEditEvent }) => {
           setStartTime(eventStartTime);
           setEndTime(eventEndTime);
           setClassroom(event.classroom);
-
+    
+          // opens the event modal
           openEditModal(event);
-          //onEditEvent(eventId, event);
         } else {
+          // opens the event info modal
           const event = formattedEvents.find(event => event.id === eventId);
-          openModal(event); // Open modal with event details
+          openModal(event);
         }
       }
     }
   };
+
+  const openParentCodeVerificationModal = () => {
+    setIsParentVerificationModalOpen(true);
+  };
+
+  const handleCodeChange = (e) => {
+    setEnteredCode(e.target.value);
+  };
+
+  const verifyParentCode = (e) => {
+    e.preventDefault();
+
+    if (enteredCode === user.parentCode) {
+      setIsParentCodeVerified(true);
+      setIsCodeCorrect(true);
+      closeModal();
+    } else {
+      console.log("entered Code: ", enteredCode);
+      console.log("user.parentCode: ", user.parentCode);
+      
+      setIsCodeCorrect(false);
+      setError('Invalid parent code');
+    }
+  };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -127,7 +205,7 @@ const Calendar = ({ startDate, events, onDeleteEvent, onEditEvent }) => {
       return;
     }
 
-    const event = { 
+    const event = {
       text,
       color,
       type,
@@ -136,7 +214,7 @@ const Calendar = ({ startDate, events, onDeleteEvent, onEditEvent }) => {
       classroom
     };
 
-    onEditEvent(selectedEvent.id, event)
+    onEditEvent(selectedEvent.id, event);
   };
 
   return (
@@ -144,22 +222,35 @@ const Calendar = ({ startDate, events, onDeleteEvent, onEditEvent }) => {
       <DayPilotCalendar {...config} />
 
       {isModalOpen && selectedEvent && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <h1>Event Info</h1>
-            <h3>Event Title:</h3>
-            <p>{selectedEvent.text}</p>
+        <div className="emodal-overlay">
+          <div className="emodal-content">
+            <h1 className="emodal-title">Event Info</h1>
 
-            <h3>Event Type:</h3>
-            <p>{selectedEvent.type}</p>
+            <div className="emodal-section">
+              <h3 className="emodal-label">Event Title:</h3>
+              <p className="emodal-info">{selectedEvent.text}</p>
+            </div>
 
-            <h3>Event Color:</h3>
-            <p>{selectedEvent.backColor}</p>
 
-            <h3>Date/Time:</h3>
-            <p>Start: {new Date(selectedEvent.start).toLocaleString()}</p>
-            <p>End: {new Date(selectedEvent.end).toLocaleString()}</p>
-            {console.log(selectedEvent.start.toString())}
+            <div className="emodal-section">
+              <h3 className="emodal-label">Event Type:</h3>
+              <p className="emodal-info">{selectedEvent.type}</p>
+            </div>
+
+            <div className="emodal-section">
+              <h3 className="emodal-label">Event Color:</h3>
+              <div className="emodal-color-preview" style={{ backgroundColor: selectedEvent.backColor }}/>
+            </div>
+
+            <div className="emodal-section">
+              <h3 className="emodal-label">Date/Time:</h3>
+              <div className="emodal-info">
+                <p>Start: {new Date(selectedEvent.start).toLocaleString()}</p>
+                <p>End: {new Date(selectedEvent.end).toLocaleString()}</p>
+              </div>
+              {console.log(selectedEvent.start.toString())}
+            </div>
+
 
             <button type="button" onClick={closeModal} className="close-modal">
               Close
@@ -168,11 +259,11 @@ const Calendar = ({ startDate, events, onDeleteEvent, onEditEvent }) => {
         </div>
       )}
 
+
       {isEditModalOpen && selectedEvent && (
         <div className="modal-overlay">
           <div className="modal-content">
-            {console.log('Modal values:', date, startTime, endTime)}
-          <form className="edit-event" onSubmit={handleSubmit}>
+            <form className="create" onSubmit={handleSubmit}>
               <h3>Edit Event</h3>
 
               <label>Event Title:</label>
@@ -180,7 +271,6 @@ const Calendar = ({ startDate, events, onDeleteEvent, onEditEvent }) => {
                 type="text"
                 onChange={(e) => setText(e.target.value)}
                 value={text}
-                className={emptyFields.includes('text') ? 'error' : ''}
               />
 
               <label>Event Type:</label>
@@ -221,12 +311,16 @@ const Calendar = ({ startDate, events, onDeleteEvent, onEditEvent }) => {
                 ))}
               </div>
 
+              <input
+                type="hidden"
+                value={classroom}
+              />
+
               <label>Date:</label>
               <input
                 type="date"
                 onChange={(e) => setDate(e.target.value)}
                 value={date}
-                className={emptyFields.includes('date') ? 'error' : ''}
               />
 
               <label>Start Time:</label>
@@ -234,7 +328,6 @@ const Calendar = ({ startDate, events, onDeleteEvent, onEditEvent }) => {
                 type="time"
                 onChange={(e) => setStartTime(e.target.value)}
                 value={startTime}
-                className={emptyFields.includes('startTime') ? 'error' : ''}
               />
 
               <label>End Time:</label>
@@ -242,21 +335,36 @@ const Calendar = ({ startDate, events, onDeleteEvent, onEditEvent }) => {
                 type="time"
                 onChange={(e) => setEndTime(e.target.value)}
                 value={endTime}
-                className={emptyFields.includes('endTime') ? 'error' : ''}
               />
 
-              <input 
-                type="hidden"
-                value={classroom}
-              />
-
-              <button type="submit" className="submit">Save Changes</button>
+              <button type="submit" className="submit">Save</button>
               {error && <div className="error">{error}</div>}
 
               <button type="button" onClick={closeEditModal} className="submit">
                 Close
               </button>
             </form>
+          </div>
+        </div>
+      )}
+    {isParentVerificationModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h4>Verify Parent Code</h4>
+            <form onSubmit={verifyParentCode}>
+              <input
+                type="text"
+                value={enteredCode}
+                onChange={handleCodeChange}
+                placeholder="Enter parent code"
+                className={isCodeCorrect ? 'correct' : ''}
+              />
+              <button type="submit" className={isCodeCorrect ? 'submit-correct' : ''}>
+                Verify
+              </button>
+              {error && <p>{error}</p>}
+            </form>
+            <button type="button" onClick={closeParentVerificationModal} className="close-modal">Close</button>
           </div>
         </div>
       )}

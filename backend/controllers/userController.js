@@ -39,8 +39,6 @@ const signupUser = async (req, res) => {
 
 const updateCode = async (req, res) => {
   const { email, newCode } = req.body;
-  console.log(email);
-  console.log(newCode);
 
   // Validate inputs
   if (!email || !newCode) {

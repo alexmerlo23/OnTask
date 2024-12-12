@@ -1,6 +1,7 @@
 import React from 'react';
 import { DayPilotNavigator } from "@daypilot/daypilot-lite-react";
 
+// styling
 const styles = {
   wrap: {
     display: "flex"
@@ -18,6 +19,7 @@ const CalendarNav = ({ setStartDate }) => {
     setStartDate(args.day); // Call the function to update the start date
   };
 
+  // navbar
   return (
     <div style={styles.wrap}>
       <div style={styles.left}>

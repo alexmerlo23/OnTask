@@ -9,21 +9,20 @@ const Signup = () => {
   const [selectedRole, setSelectedRole] = useState('student');
   const [code, setCode] = useState('');
 
+  // hanldes clicking signup
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     await signup(email, password, selectedRole, code, name);
+    window.location.reload();
   };
-/*
-  const handleClassClick = async (e) => {
-    e.preventDefault()
-    await signupClass(email, classroomName, code);
-  }*/
 
+  // switches role from student to teacher
   const handleButtonClick = (buttonName) => {
     setSelectedRole(buttonName === selectedRole ? selectedRole : buttonName);
   };
 
+  // signup page
   return (
     <form className="signup" onSubmit={handleSubmit}>
       <h3>Sign Up</h3>

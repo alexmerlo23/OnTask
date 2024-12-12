@@ -14,17 +14,17 @@ export const JoinClass = () => {
     setIsLoading(true);
     setError(null);
 
+    // verify user
     if (!user) {
       setError('User is not logged in');
       setIsLoading(false);
       return;
     }
 
-    console.log(user)
-
     try {
+      // patch the user code
       const response = await fetch('/api/user', {
-        method: 'PATCH', // or PUT depending on your API design
+        method: 'PATCH',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${user.token}`,
@@ -37,23 +37,25 @@ export const JoinClass = () => {
 
       const json = await response.json();
 
-      if (!response.ok) {
+      if (!response.ok) { // if patch fails
         throw new Error(json.error || 'Failed to update code');
       }
-      else {
+      else { // user context
         dispatch({ type: 'UPDATE_CODE', payload: { code: newCode } });
       }
 
-    } catch (err) {
+    } catch (err) { // error handling
       setError(err.message || 'An error occurred');
     } finally {
       setIsLoading(false);
     }
   };
 
+  // functions to open and close the modals
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
+  // join class form
   return (
     <>
       <button onClick={openModal} className="create-class-button">Join Class</button>

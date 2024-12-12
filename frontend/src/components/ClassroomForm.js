@@ -6,30 +6,31 @@ const ClassroomForm = () => {
   const { dispatch } = useClassContext();
   const { user } = useAuthContext();
 
+  // state variables to help with form
   const [email, setEmail] = useState(user.email);
   const [code, setCode] = useState('');
   const [classroomName, setClassroomName] = useState('');
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // handles submission of create class button
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log('Form submitted'); // Debug log
-
+    // verify user
     if (!user) {
       setError('You must be logged in');
       return;
     }
 
+    // verify all fields are filled
     if (!classroomName || !code || !email) {
       setError('Please fill in all fields');
       return;
     }
 
-    console.log('Request body:', { classroomName, code, email }); // Debug log
-
     try {
+      // post the class to the database
       const response = await fetch('/api/classes', {
         method: 'POST',
         headers: {
@@ -39,11 +40,8 @@ const ClassroomForm = () => {
         body: JSON.stringify({ classroomName, code, email }),
       });
 
-      console.log('Response from /api/classes:', response); // Debug log
-
-      if (!response.ok) {
+      if (!response.ok) { // handle if post fails
         const errorData = await response.json();
-        console.log('Error data from /api/classes:', errorData); // Debug log
 
         // Check for duplicate key error
         if (errorData.code === 11000) {
@@ -54,10 +52,11 @@ const ClassroomForm = () => {
         return;
       }
 
+      // class controller
       const classData = await response.json();
-      console.log('Class created successfully:', classData); // Debug log
       dispatch({ type: 'CREATE_CLASS', payload: classData });
 
+      // patch the user with the class code
       const responseTwo = await fetch('/api/user', {
         method: 'PATCH',
         headers: {
@@ -67,9 +66,7 @@ const ClassroomForm = () => {
         body: JSON.stringify({ email: user.email, newCode: code }),
       });
 
-      console.log('Response from /api/user patch:', responseTwo); // Debug log
-
-      if (!responseTwo.ok) {
+      if (!responseTwo.ok) { // handle if patch fails
         const errorTextTwo = await responseTwo.text();
         console.error('Error updating user code:', errorTextTwo); // Debug log
         setError('Failed to update user code.');
@@ -77,27 +74,26 @@ const ClassroomForm = () => {
       }
 
       const updatedUser = await responseTwo.json();
-      console.log('User updated successfully:', updatedUser); // Debug log
 
       // Update the user context
       dispatch({ type: 'UPDATE_USER', payload: updatedUser });
 
-      setIsModalOpen(false);
+      setIsModalOpen(false); // close modal
     } catch (err) {
       console.error('Fetch error:', err);
       setError('An unexpected error occurred.');
     }
   };
 
+  // functions to open and close the form modal
   const openModal = () => {
-    console.log('Opening modal'); // Debug log
     setIsModalOpen(true);
   };
   const closeModal = () => {
-    console.log('Closing modal'); // Debug log
     setIsModalOpen(false);
   };
 
+  // class form
   return (
     <>
       <button onClick={openModal} className="create-class-button">Create Class</button>

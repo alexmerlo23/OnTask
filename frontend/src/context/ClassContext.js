@@ -31,6 +31,7 @@ export const ClassesContextProvider = ({ children }) => {
         }
     }, [user]);
 
+    // fetches classroom based on the id
     const fetchClassroom = async (classroomId) => {
         const response = await fetch(`/api/classrooms/${classroomId}`);
         const classroom = await response.json();

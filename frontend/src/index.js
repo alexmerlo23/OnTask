@@ -6,6 +6,7 @@ import { EventsContextProvider } from './context/EventContext';
 import { AuthContextProvider } from './context/AuthContext'
 import {ClassesContextProvider} from './context/ClassContext'
 
+// renders the application
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>

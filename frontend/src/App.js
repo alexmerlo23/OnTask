@@ -14,6 +14,7 @@ import { ClassesContextProvider } from './context/ClassContext'  // Import the p
 function App() {
   const { user } = useAuthContext()
 
+  // main app which includes all routes
   return (
     <div className="App">
       <ClassesContextProvider>  {/* Wrap the app with the ClassesContextProvider */}

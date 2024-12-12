@@ -6,12 +6,15 @@ const Login = () => {
   const [password, setPassword] = useState('')
   const {login, error, isLoading} = useLogin()
 
+  // handles login button
   const handleSubmit = async (e) => {
     e.preventDefault()
 
     await login(email, password)
+    window.location.reload();
   }
 
+  // login screen
   return (
     <div className="login-page">
       <div className="login-content">

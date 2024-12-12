@@ -6,6 +6,7 @@ const EventForm = () => {
   const { dispatch } = useEventsContext();
   const { user } = useAuthContext();
 
+  // state variables to help with form
   const [text, setText] = useState('');
   const [date, setDate] = useState('');
   const [startTime, setStartTime] = useState('');
@@ -18,19 +19,23 @@ const EventForm = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [typeOptions, setTypeOptions] = useState(['Homework', 'Test', 'Document', 'Other']);
 
+  // when form is submitted
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // verify user
     if (!user) {
       setError('You must be logged in');
       return;
     }
 
+    // verify all fields are filled
     if (!date || !startTime || !endTime || !type) {
       setError('Please fill in all fields');
       return;
     }
 
+    // put date and time into correct format
     const start = new Date(`${date}T${startTime}Z`);
     const end = new Date(`${date}T${endTime}Z`);
 
@@ -39,16 +44,18 @@ const EventForm = () => {
       return;
     }
 
+    // store event info into a variable
     const event = { 
       text,
       color,
       type,
       start: start.toISOString(),
       end: end.toISOString(),
-      classroom
+      classroom: 'default'
     };
 
     try {
+      // post the event to the database
       const response = await fetch('/api/events', {
         method: 'POST',
         body: JSON.stringify(event),
@@ -58,12 +65,14 @@ const EventForm = () => {
         },
       });
 
+      // handle if post fails
       if (!response.ok) {
         const json = await response.json();
         console.log(json)
         setError(json.error || 'Something went wrong');
         setEmptyFields(json.emptyFields || []);
       } else {
+        // event controller
         const json = await response.json();
         setText('');
         setDate('');
@@ -75,14 +84,16 @@ const EventForm = () => {
         setEmptyFields([]);
         dispatch({ type: 'CREATE_EVENT', payload: { ...json, id: json._id } });
 
+        // reload the window to update events on calendar
         window.location.reload();
       }
     } catch (error) {
-      console.error('Fetch error:', error);
+      console.error('Fetch error:', error); // log the errors
       setError('An error occurred while creating the event.');
     }
   };
 
+  // functions to open and close modals
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
@@ -91,6 +102,7 @@ const EventForm = () => {
     'Purple', 'BlueViolet', 'RoyalBlue', 'DarkBlue', 'ForestGreen'
   ];
 
+  // The add event form
   return (
     <>
       <button onClick={openModal} className="add-event-button">Add Event</button>

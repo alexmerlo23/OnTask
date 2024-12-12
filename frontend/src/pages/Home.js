@@ -12,6 +12,7 @@ const Home = () => {
   const currentDate = new Date().toISOString().split('T')[0]; 
   const [startDate, setStartDate] = useState(currentDate);
 
+  // fetch the events from the database
   const fetchEvents = useCallback(async () => {
     const response = await fetch('/api/events', {
       headers: { 'Authorization': `Bearer ${user.token}` },
@@ -19,6 +20,7 @@ const Home = () => {
     const json = await response.json();
 
     if (response.ok) {
+      // map the events
       const mappedEvents = json.map(event => ({
         id: event._id,
         text: event.text,
@@ -29,7 +31,6 @@ const Home = () => {
         type: event.type,
         classroom: event.classroom
       }));
-      console.log("Mapped Events Array: ", mappedEvents); 
       eventDispatch({ type: 'SET_EVENTS', payload: mappedEvents });
     } else {
       console.error("Error fetching events:", json);
@@ -76,6 +77,7 @@ const Home = () => {
     window.location.reload();
   };
 
+  // home page
   return (
     <div className="home">
       <div>
