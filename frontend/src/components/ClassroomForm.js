@@ -83,6 +83,8 @@ const ClassroomForm = () => {
       console.error('Fetch error:', err);
       setError('An unexpected error occurred.');
     }
+    window.location.reload();
+
   };
 
   // functions to open and close the form modal
