@@ -7,8 +7,12 @@ export const useLogin = () => {
   const { dispatch } = useAuthContext()
 
   const login = async (email, password) => {
-    setIsLoading(true)
-    setError(null)
+    setIsLoading(true);
+    setError(null);
+    
+    const apiUrl = `${process.env.REACT_APP_API_URL}/api/user/login`;
+    console.log('Request URL:', apiUrl);
+
 
     // post to user login
     const response = await fetch('/api/user/login', {
@@ -31,8 +35,10 @@ export const useLogin = () => {
 
       // update loading state
       setIsLoading(false)
+
     }
-  }
+  };
+  
 
   return { login, isLoading, error }
 }

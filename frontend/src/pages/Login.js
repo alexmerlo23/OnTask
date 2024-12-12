@@ -1,10 +1,8 @@
-import { useState } from "react"
-import { useLogin } from "../hooks/useLogin"
+import React, { useState, Suspense, lazy } from 'react';
+import { useAuthContext } from '../hooks/useAuthContext';
 
-const Login = () => {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const {login, error, isLoading} = useLogin()
+// Lazy load the DayPilotCalendar
+const DayPilotCalendar = lazy(() => import('@daypilot/daypilot-lite-react').then(module => ({ default: module.DayPilotCalendar })));
 
   // handles login button
   const handleSubmit = async (e) => {
@@ -15,36 +13,132 @@ const Login = () => {
   }
 
   // login screen
+
   return (
-    <div className="login-page">
-      <div className="login-content">
-        <div className="left-section">
-          <h2>Welcome to OnTask!</h2>
-          <p>This website is made to enhance communication among teachers, parents, and students. Users can track assignments, view announcements, and access a weekly calendar. Our platform improves organization and clarity, ensuring a user-friendly experience while safeguarding sensitive information.</p>
+    <div>
+      {/* Suspense component to display loading indicator while calendar is being loaded */}
+      <Suspense fallback={<div>Loading calendar...</div>}>
+        <DayPilotCalendar {...config} />
+      </Suspense>
+
+      {isModalOpen && selectedEvent && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h1>Event Info</h1>
+            <h3>Event Title:</h3>
+            <p>{selectedEvent.text}</p>
+
+            <h3>Event Type:</h3>
+            <p>{selectedEvent.type}</p>
+
+            <h3>Event Color:</h3>
+            <p>{selectedEvent.backColor}</p>
+
+            <h3>Date/Time:</h3>
+            <p>Start: {new Date(selectedEvent.start).toLocaleString()}</p>
+            <p>End: {new Date(selectedEvent.end).toLocaleString()}</p>
+
+            <button type="button" onClick={closeModal} className="close-modal">
+              Close
+            </button>
+          </div>
         </div>
+      )}
 
-        <form className="login-form" onSubmit={handleSubmit}>
-          <h3>Log In</h3>
-          
-          <label>Email address:</label>
-          <input 
-            type="email" 
-            onChange={(e) => setEmail(e.target.value)} 
-            value={email} 
-          />
-          <label>Password:</label>
-          <input 
-            type="password" 
-            onChange={(e) => setPassword(e.target.value)} 
-            value={password} 
-          />
+      {isEditModalOpen && selectedEvent && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <form className="edit-event" onSubmit={handleSubmit}>
+              <h3>Edit Event</h3>
 
-          <button disabled={isLoading}>Log in</button>
-          {error && <div className="error">{error}</div>}
-        </form>
-      </div>
+              <label>Event Title:</label>
+              <input
+                type="text"
+                onChange={(e) => setText(e.target.value)}
+                value={text}
+                className={emptyFields.includes('text') ? 'error' : ''}
+              />
+
+              <label>Event Type:</label>
+              <div className="event-types">
+                {typeOptions.map(typeOption => (
+                  <button
+                    key={typeOption}
+                    type="button"
+                    className="event-type-button"
+                    onClick={() => setType(typeOption)}
+                    style={{
+                      background: type === typeOption ? 'var(--primary)' : '#fff',
+                      color: type === typeOption ? '#fff' : 'var(--primary)',
+                      border: '2px solid var(--primary)',
+                      padding: '6px 10px',
+                      borderRadius: '4px',
+                      fontFamily: 'Poppins',
+                      cursor: 'pointer',
+                      fontSize: '1em',
+                      margin: '2px',
+                      position: 'relative'
+                    }}
+                  >
+                    {typeOption}
+                  </button>
+                ))}
+              </div>
+
+              <label>Event Color:</label>
+              <div className="color-picker">
+                {colorOptions.map(colorOption => (
+                  <div
+                    key={colorOption}
+                    className={`color-circle ${color === colorOption ? 'selected' : ''}`}
+                    style={{ backgroundColor: colorOption }}
+                    onClick={() => setColor(colorOption)}
+                  />
+                ))}
+              </div>
+
+              <label>Date:</label>
+              <input
+                type="date"
+                onChange={(e) => setDate(e.target.value)}
+                value={date}
+                className={emptyFields.includes('date') ? 'error' : ''}
+              />
+
+              <label>Start Time:</label>
+              <input
+                type="time"
+                onChange={(e) => setStartTime(e.target.value)}
+                value={startTime}
+                className={emptyFields.includes('startTime') ? 'error' : ''}
+              />
+
+              <label>End Time:</label>
+              <input
+                type="time"
+                onChange={(e) => setEndTime(e.target.value)}
+                value={endTime}
+                className={emptyFields.includes('endTime') ? 'error' : ''}
+              />
+
+              <label>Classroom:</label>
+              <input
+                type="text"
+                onChange={(e) => setClassroom(e.target.value)}
+                value={classroom}
+                className={emptyFields.includes('classroom') ? 'error' : ''}
+              />
+
+              <button type="submit">Save</button>
+            </form>
+            <button type="button" onClick={closeEditModal} className="close-modal">
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
-  )
-}
+  );
+};
 
-export default Login
+export default Calendar;
