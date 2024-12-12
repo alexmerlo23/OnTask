@@ -12,3 +12,9 @@
 * cd OnTask\backend
 * npm install
 * npm start
+
+
+# Access Credentials
+* PORT=4006
+* MONGO_URI=(your mongo DB cluster)
+* SECRET=ninjadojoshifuyoshimarioluigipeachbowser
