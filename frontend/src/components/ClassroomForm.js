@@ -83,6 +83,8 @@ const ClassroomForm = () => {
       console.error('Fetch error:', err);
       setError('An unexpected error occurred.');
     }
+    console.log("user: ", user)
+    window.location.reload();
   };
 
   // functions to open and close the form modal
@@ -115,7 +117,6 @@ const ClassroomForm = () => {
               <input
                 type="text"
                 onChange={(e) => setCode(e.target.value)}
-                value={code}
               />
 
               <input
