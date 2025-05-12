@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useAuthContext } from "../hooks/useAuthContext";
+import API_URL from "../config/api";
 
 const Account = () => {
   const { user, dispatch } = useAuthContext();
@@ -16,14 +17,13 @@ const Account = () => {
         try {
           let endpoint = "";
           if (user.role === "teacher") {
-            endpoint = `/api/classes/by-email?email=${user.email}`;
-          } else if (user.role === "student" && user.code) {  // Use user.code instead of user.classroomCode
-            endpoint = `/api/classes/by-code/${user.code}`;
-
+            endpoint = `${API_URL}/api/classes/by-email?email=${user.email}`;
+          } else if (user.role === "student" && user.code) {
+            endpoint = `${API_URL}/api/classes/by-code/${user.code}`;
           }
   
           if (endpoint) {
-            console.log("Fetching data from endpoint:", endpoint);  // Add this log
+            console.log("Fetching data from endpoint:", endpoint);
             const response = await fetch(endpoint, {
               method: "GET",
               headers: {
@@ -38,10 +38,10 @@ const Account = () => {
             const contentType = response.headers.get("Content-Type");
             if (contentType && contentType.includes("application/json")) {
               const data = await response.json();
-              console.log("Fetched data:", data);  // Add this log to check what data comes back
+              console.log("Fetched data:", data);
               setClassroomData(data);
             } else {
-              const errorText = await response.text();  // If not JSON, get the error page text
+              const errorText = await response.text();
               throw new Error(`Unexpected response format: ${errorText}`);
             }
           }
@@ -57,7 +57,6 @@ const Account = () => {
     }
   }, [user]);
   
-
   // Handle teacher code input submission for students
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -73,22 +72,22 @@ const Account = () => {
     }
 
     try {
-      // patch the user code
-      const response = await fetch("/api/user", {
+      // patch the user code with absolute URL
+      const response = await fetch(`${API_URL}/api/user`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${user.token}`,
         },
         body: JSON.stringify({
-          email: user.email, // Include the user's email for identification
-          newCode: teacherCode, // Use the entered teacher's code
+          email: user.email,
+          newCode: teacherCode,
         }),
       });
 
       const json = await response.json();
 
-      if (!response.ok) { // handle patch failure
+      if (!response.ok) {
         throw new Error(json.error || "Failed to join the class.");
       }
 
