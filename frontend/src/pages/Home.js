@@ -11,24 +11,22 @@ const Home = () => {
   const { classroom } = useClassContext();
   const currentDate = new Date().toISOString().split('T')[0]; 
   const [startDate, setStartDate] = useState(currentDate);
-  const renderCountRef = useRef(0);
+  const isInitialMount = useRef(true);
   
-  // For debugging - track renders
+  // Fetch events only once when component mounts or when user changes
   useEffect(() => {
-    renderCountRef.current += 1;
-    console.log(`Home component rendered ${renderCountRef.current} times`);
-    
-    // Debug dependencies
-    console.log('fetchEvents reference:', fetchEvents);
-    console.log('user reference:', user);
-  }, [fetchEvents, user]);
-
-  // Only fetch events once when component mounts or user changes
-  useEffect(() => {
-    if (user) {
-      console.log('FETCHING EVENTS - this should only happen once per user change');
+    // Skip the first render's console log to avoid duplicate messages
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      
+      if (user) {
+        console.log('Initial fetch of events');
+        fetchEvents();
+      }
+    } else if (user) {
+      // This will only run when user changes after initial mount
+      console.log('User changed, fetching events again');
       fetchEvents();
-      console.log('User in Home:', user);
     }
   }, [user, fetchEvents]);
 

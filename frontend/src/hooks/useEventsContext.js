@@ -1,123 +1,123 @@
-import { useContext } from 'react';
-import { eventsContext } from '../context/EventContext';
+import React, { createContext, useReducer, useCallback, useMemo } from 'react';
 import { useAuthContext } from './useAuthContext';
-import API_URL from '../config/api';
 
-export const useEventsContext = () => {
-  const context = useContext(eventsContext);
+export const EventsContext = createContext();
+
+export const eventsReducer = (state, action) => {
+  switch (action.type) {
+    case 'SET_EVENTS':
+      return {
+        events: action.payload
+      };
+    case 'CREATE_EVENT':
+      return {
+        events: [action.payload, ...state.events]
+      };
+    case 'DELETE_EVENT':
+      return {
+        events: state.events.filter((e) => e._id !== action.payload._id)
+      };
+    case 'UPDATE_EVENT':
+      return {
+        events: state.events.map((e) => e._id === action.payload._id ? action.payload : e)
+      };
+    default:
+      return state;
+  }
+};
+
+export const EventsContextProvider = ({ children }) => {
+  const [state, dispatch] = useReducer(eventsReducer, { events: [] });
   const { user } = useAuthContext();
 
-  if (!context) {
-    throw Error('useEventsContext must be used inside an EventsContextProvider');
-  }
-
-  // Add API URL to all event-related fetch operations
-  const fetchEvents = async () => {
+  // Memoize all functions with useCallback to prevent recreating them on each render
+  const fetchEvents = useCallback(async () => {
     try {
-      const response = await fetch(`${API_URL}/api/events`, {
-        headers: { 'Authorization': `Bearer ${user.token}` },
+      const response = await fetch('/api/events', {
+        headers: {
+          'Authorization': `Bearer ${user?.token}`
+        }
       });
       const json = await response.json();
 
       if (response.ok) {
-        const mappedEvents = json.map(event => ({
-          id: event._id,
-          text: event.text,
-          start: event.start,
-          end: event.end,
-          backColor: event.color || "#ffffff",
-          participants: event.participants || 0,
-          type: event.type,
-          classroom: event.classroom
-        }));
-        context.dispatch({ type: 'SET_EVENTS', payload: mappedEvents });
-        return mappedEvents;
-      } else {
-        console.error("Error fetching events:", json);
-        return [];
+        dispatch({ type: 'SET_EVENTS', payload: json });
       }
     } catch (error) {
-      console.error("Error fetching events:", error);
-      return [];
+      console.error('Error fetching events:', error);
     }
-  };
+  }, [user?.token]);
 
-  const createEvent = async (eventData) => {
+  const createEvent = useCallback(async (event) => {
     try {
-      const response = await fetch(`${API_URL}/api/events`, {
+      const response = await fetch('/api/events', {
         method: 'POST',
+        body: JSON.stringify(event),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.token}`
-        },
-        body: JSON.stringify(eventData)
+          'Authorization': `Bearer ${user?.token}`
+        }
       });
-      
       const json = await response.json();
-      
+
       if (response.ok) {
-        context.dispatch({ type: 'CREATE_EVENT', payload: json });
-        return json;
-      } else {
-        console.error("Failed to create event:", json);
-        return null;
+        dispatch({ type: 'CREATE_EVENT', payload: json });
       }
     } catch (error) {
-      console.error("Error creating event:", error);
-      return null;
+      console.error('Error creating event:', error);
     }
-  };
+  }, [user?.token]);
 
-  const deleteEvent = async (eventId) => {
+  const deleteEvent = useCallback(async (id) => {
     try {
-      const response = await fetch(`${API_URL}/api/events/${eventId}`, {
+      const response = await fetch(`/api/events/${id}`, {
         method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${user.token}` },
-      });
-
-      if (response.ok) {
-        context.dispatch({ type: 'DELETE_EVENT', payload: eventId });
-        return true;
-      } else {
-        console.error("Failed to delete event");
-        return false;
-      }
-    } catch (error) {
-      console.error("Error deleting event:", error);
-      return false;
-    }
-  };
-
-  const updateEvent = async (eventId, updatedEvent) => {
-    try {
-      const response = await fetch(`${API_URL}/api/events/${eventId}`, {
-        method: 'PATCH',
         headers: {
-          'Authorization': `Bearer ${user.token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updatedEvent),
+          'Authorization': `Bearer ${user?.token}`
+        }
       });
+      const json = await response.json();
 
       if (response.ok) {
-        const json = await response.json();
-        context.dispatch({ type: 'EDIT_EVENT', payload: json });
-        return json;
-      } else {
-        console.error("Failed to edit event");
-        return null;
+        dispatch({ type: 'DELETE_EVENT', payload: json });
       }
     } catch (error) {
-      console.error("Error updating event:", error);
-      return null;
+      console.error('Error deleting event:', error);
     }
-  };
+  }, [user?.token]);
 
-  return { 
-    ...context, 
+  const updateEvent = useCallback(async (id, updatedEvent) => {
+    try {
+      const response = await fetch(`/api/events/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(updatedEvent),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user?.token}`
+        }
+      });
+      const json = await response.json();
+
+      if (response.ok) {
+        dispatch({ type: 'UPDATE_EVENT', payload: json });
+      }
+    } catch (error) {
+      console.error('Error updating event:', error);
+    }
+  }, [user?.token]);
+
+  // Memoize the context value to prevent recreating the object on each render
+  const contextValue = useMemo(() => ({
+    ...state,
     fetchEvents,
     createEvent,
     deleteEvent,
     updateEvent
-  };
+  }), [state, fetchEvents, createEvent, deleteEvent, updateEvent]);
+
+  return (
+    <EventsContext.Provider value={contextValue}>
+      {children}
+    </EventsContext.Provider>
+  );
 };
