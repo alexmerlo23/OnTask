@@ -14,48 +14,68 @@ export const JoinClass = () => {
     setIsLoading(true);
     setError(null);
 
-    // verify user
-    if (!user) {
-      setError('User is not logged in');
+    // Verify user
+    if (!user || !user.token) {
+      setError('User is not logged in or token is missing');
+      setIsLoading(false);
+      return;
+    }
+
+    // Validate input
+    const trimmedCode = newCode.trim();
+    if (!trimmedCode) {
+      setError('Class code cannot be empty');
       setIsLoading(false);
       return;
     }
 
     try {
-      // patch the user code
       const response = await fetch('/api/user', {
         method: 'PATCH',
         headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${user.token}`,
-          },
-          body: JSON.stringify({
-            email: user.email,  // Include the user's email for identification
-            newCode: newCode,   // Include the new code
-          }),
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user.token}`,
+        },
+        body: JSON.stringify({ newCode: trimmedCode }), // Remove email
       });
+
+      // Check if response is OK
+      if (!response.ok) {
+        const text = await response.text();
+        let errorMessage;
+        try {
+          const json = JSON.parse(text);
+          errorMessage = json.error || `Server responded with status ${response.status}`;
+        } catch {
+          errorMessage = text || `Server responded with status ${response.status}`;
+        }
+        throw new Error(errorMessage);
+      }
+
+      // Check if response has JSON content
+      const contentType = response.headers.get('Content-Type');
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error('Server did not return JSON');
+      }
 
       const json = await response.json();
 
-      if (!response.ok) { // if patch fails
-        throw new Error(json.error || 'Failed to update code');
-      }
-      else { // user context
-        dispatch({ type: 'UPDATE_CODE', payload: { code: newCode } });
-      }
+      // Update user context
+      dispatch({ type: 'UPDATE_CODE', payload: { code: trimmedCode } });
 
-    } catch (err) { // error handling
+      // Close modal on success
+      setIsModalOpen(false);
+      setNewCode('');
+    } catch (err) {
       setError(err.message || 'An error occurred');
     } finally {
       setIsLoading(false);
     }
   };
 
-  // functions to open and close the modals
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
-  // join class form
   return (
     <>
       <button onClick={openModal} className="create-class-button">Join Class</button>
@@ -66,22 +86,22 @@ export const JoinClass = () => {
             <form className="join-class" onSubmit={handleSubmit}>
               <h3>Join a Class</h3>
 
-                <label>Class Code:</label>
-                <input
-                    type="text"
-                    value={newCode}
-                    onChange={(e) => setNewCode(e.target.value)}
-                    required
-                />
+              <label>Class Code:</label>
+              <input
+                type="text"
+                value={newCode}
+                onChange={(e) => setNewCode(e.target.value)}
+                required
+              />
 
-                <button type="submit" className="submit" disabled={isLoading}>
+              <button type="submit" className="submit" disabled={isLoading}>
                 Join Class
-                </button>
-                {error && <div className="error">{error}</div>}
+              </button>
+              {error && <div className="error">{error}</div>}
 
-                <button type="button" onClick={closeModal} className="close-modal">
+              <button type="button" onClick={closeModal} className="close-modal">
                 Close
-                </button>
+              </button>
             </form>
           </div>
         </div>

@@ -1,17 +1,16 @@
-const express = require('express')
+const express = require('express');
+const { loginUser, signupUser, updateCode } = require('../controllers/userController');
+const requireAuth = require('../middleware/requireAuth'); // Add middleware
 
-// controller functions
-const { loginUser, signupUser, updateCode } = require('../controllers/userController')
+const router = express.Router();
 
-const router = express.Router()
+// Login route
+router.post('/login', loginUser);
 
-// login route
-router.post('/login', loginUser)
+// Signup route
+router.post('/signup', signupUser);
 
-// signup route
-router.post('/signup', signupUser)
+// Update code (protected route)
+router.patch('/', requireAuth, updateCode);
 
-// update code
-router.patch('/', updateCode)
-
-module.exports = router
+module.exports = router;
