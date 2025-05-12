@@ -1,5 +1,6 @@
 import React, { createContext, useReducer, useCallback, useMemo } from 'react';
-import { useAuthContext } from '../hooks/useAuthContext'; // Fixed import path
+import { useAuthContext } from '../hooks/useAuthContext';
+import API_URL from '../config/api';
 
 export const EventsContext = createContext();
 
@@ -33,82 +34,106 @@ export const EventsContextProvider = ({ children }) => {
   // Memoize all functions with useCallback to prevent recreating them on each render
   const fetchEvents = useCallback(async () => {
     try {
-      const response = await fetch('/api/events', {
+      if (!user) return;
+      
+      const response = await fetch(`${API_URL}/api/events`, {
         headers: {
-          'Authorization': `Bearer ${user?.token}`
+          'Authorization': `Bearer ${user.token}`
         }
       });
-      const json = await response.json();
-
-      if (response.ok) {
-        dispatch({ type: 'SET_EVENTS', payload: json });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch events: ${response.status}`);
       }
+      
+      const json = await response.json();
+      dispatch({ type: 'SET_EVENTS', payload: json });
     } catch (error) {
       console.error('Error fetching events:', error);
     }
-  }, [user?.token]);
+  }, [user]);
 
   const createEvent = useCallback(async (event) => {
     try {
-      const response = await fetch('/api/events', {
+      if (!user) return null;
+      
+      const response = await fetch(`${API_URL}/api/events`, {
         method: 'POST',
         body: JSON.stringify(event),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user?.token}`
+          'Authorization': `Bearer ${user.token}`
         }
       });
-      const json = await response.json();
-
-      if (response.ok) {
-        dispatch({ type: 'CREATE_EVENT', payload: json });
+      
+      if (!response.ok) {
+        const errorData = await response.text();
+        console.error('Server response:', errorData);
+        throw new Error(`Failed to create event: ${response.status}`);
       }
+      
+      const json = await response.json();
+      dispatch({ type: 'CREATE_EVENT', payload: json });
+      return json;
     } catch (error) {
       console.error('Error creating event:', error);
+      return null;
     }
-  }, [user?.token]);
+  }, [user]);
 
   const deleteEvent = useCallback(async (id) => {
     try {
-      const response = await fetch(`/api/events/${id}`, {
+      if (!user) return null;
+      
+      const response = await fetch(`${API_URL}/api/events/${id}`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${user?.token}`
+          'Authorization': `Bearer ${user.token}`
         }
       });
-      const json = await response.json();
-
-      if (response.ok) {
-        dispatch({ type: 'DELETE_EVENT', payload: json });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to delete event: ${response.status}`);
       }
+      
+      const json = await response.json();
+      dispatch({ type: 'DELETE_EVENT', payload: json });
+      return json;
     } catch (error) {
       console.error('Error deleting event:', error);
+      return null;
     }
-  }, [user?.token]);
+  }, [user]);
 
   const updateEvent = useCallback(async (id, updatedEvent) => {
     try {
-      const response = await fetch(`/api/events/${id}`, {
+      if (!user) return null;
+      
+      const response = await fetch(`${API_URL}/api/events/${id}`, {
         method: 'PATCH',
         body: JSON.stringify(updatedEvent),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user?.token}`
+          'Authorization': `Bearer ${user.token}`
         }
       });
-      const json = await response.json();
-
-      if (response.ok) {
-        dispatch({ type: 'UPDATE_EVENT', payload: json });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to update event: ${response.status}`);
       }
+      
+      const json = await response.json();
+      dispatch({ type: 'UPDATE_EVENT', payload: json });
+      return json;
     } catch (error) {
       console.error('Error updating event:', error);
+      return null;
     }
-  }, [user?.token]);
+  }, [user]);
 
   // Memoize the context value to prevent recreating the object on each render
   const contextValue = useMemo(() => ({
-    ...state,
+    events: state.events || [],
     fetchEvents,
     createEvent,
     deleteEvent,

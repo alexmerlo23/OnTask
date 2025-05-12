@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { useEventsContext } from "../hooks/useEventsContext";
 import { useAuthContext } from '../hooks/useAuthContext';
+import API_URL from '../config/api';
 
 const EventForm = () => {
-  const { dispatch } = useEventsContext();
+  const { createEvent } = useEventsContext();
   const { user } = useAuthContext();
 
   // state variables to help with form
@@ -18,13 +19,15 @@ const EventForm = () => {
   const [emptyFields, setEmptyFields] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [typeOptions, setTypeOptions] = useState(['Homework', 'Test', 'Document', 'Other']);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Fetch classroom data when the component mounts
   useEffect(() => {
     const fetchClassroom = async () => {
       if (user) {
         try {
-          const response = await fetch(`/api/classes/by-email?email=${user.email}`, {
+          setError(null);
+          const response = await fetch(`${API_URL}/api/classes/by-email?email=${user.email}`, {
             method: "GET",
             headers: {
               Authorization: `Bearer ${user.token}`,
@@ -32,14 +35,18 @@ const EventForm = () => {
           });
 
           if (!response.ok) {
-            throw new Error('Failed to fetch classroom');
+            // Instead of throwing an error, set a default classroom name
+            console.warn('Could not fetch classroom, using default');
+            setClassroom('default');
+            return;
           }
 
           const classroomData = await response.json();
-          setClassroom(classroomData.classroomName);
+          setClassroom(classroomData.classroomName || 'default');
         } catch (error) {
           console.error('Error fetching classroom:', error);
-          setError('Could not fetch classroom information');
+          // Set a default classroom instead of showing an error
+          setClassroom('default');
         }
       }
     };
@@ -50,62 +57,59 @@ const EventForm = () => {
   // when form is submitted
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // verify user
-    if (!user) {
-      setError('You must be logged in');
-      return;
-    }
-
-    // verify all fields are filled
-    if (!date || !startTime || !endTime || !type) {
-      setError('Please fill in all fields');
-      return;
-    }
-
-    // put date and time into correct format
-    const start = new Date(`${date}T${startTime}Z`);
-    const end = new Date(`${date}T${endTime}Z`);
-
-    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-      setError('Invalid date or time provided');
-      return;
-    }
-
-    // store event info into a variable
-    const event = { 
-      text,
-      color,
-      type,
-      start: start.toISOString(),
-      end: end.toISOString(),
-      classroom: classroom || 'default',
-      email: user.email
-    };
-
-    console.log('Event to be created:', event);
-    console.log('User:', user);
+    setIsLoading(true);
 
     try {
-      // post the event to the database
-      const response = await fetch('/api/events', {
-        method: 'POST',
-        body: JSON.stringify(event),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.token}`,
-        },
-      });
+      // verify user
+      if (!user) {
+        setError('You must be logged in');
+        setIsLoading(false);
+        return;
+      }
 
-      // handle if post fails
-      if (!response.ok) {
-        const json = await response.json();
-        console.log(json)
-        setError(json.error || 'Something went wrong');
-        setEmptyFields(json.emptyFields || []);
-      } else {
-        // event controller
-        const json = await response.json();
+      // Gather form data and check required fields
+      const formErrors = [];
+      if (!text) formErrors.push('text');
+      if (!date) formErrors.push('date');
+      if (!startTime) formErrors.push('startTime');
+      if (!endTime) formErrors.push('endTime');
+      if (!type) formErrors.push('type');
+      
+      if (formErrors.length > 0) {
+        setEmptyFields(formErrors);
+        setError('Please fill in all required fields');
+        setIsLoading(false);
+        return;
+      }
+
+      // put date and time into correct format
+      const start = new Date(`${date}T${startTime}Z`);
+      const end = new Date(`${date}T${endTime}Z`);
+
+      if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+        setError('Invalid date or time provided');
+        setIsLoading(false);
+        return;
+      }
+
+      // store event info into a variable
+      const event = { 
+        text,
+        backColor: color || 'Grey', // Default color if none selected
+        type,
+        start: start.toISOString(),
+        end: end.toISOString(),
+        classroom: classroom || 'default',
+        email: user.email
+      };
+
+      console.log('Event to be created:', event);
+      
+      // Using the context function to create the event
+      const result = await createEvent(event);
+      
+      if (result) {
+        // Reset form on success
         setText('');
         setDate('');
         setStartTime('');
@@ -114,14 +118,18 @@ const EventForm = () => {
         setType('');
         setError(null);
         setEmptyFields([]);
-        dispatch({ type: 'CREATE_EVENT', payload: { ...json, id: json._id } });
-
+        closeModal();
+        
         // reload the window to update events on calendar
         window.location.reload();
+      } else {
+        setError('Failed to create event. Please try again.');
       }
     } catch (error) {
-      console.error('Fetch error:', error); // log the errors
+      console.error('Submit error:', error);
       setError('An error occurred while creating the event.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -145,7 +153,7 @@ const EventForm = () => {
             <form className="create" onSubmit={handleSubmit}>
               <h3>Add a New Event</h3>
 
-              <label>Event Title:</label>
+              <label>Event Title: <span className="required">*</span></label>
               <input
                 type="text"
                 onChange={(e) => setText(e.target.value)}
@@ -153,7 +161,7 @@ const EventForm = () => {
                 className={emptyFields.includes('text') ? 'error' : ''}
               />
 
-              <label>Event Type:</label>
+              <label>Event Type: <span className="required">*</span></label>
               <div className="event-types">
                 {typeOptions.map(typeOption => (
                   <button
@@ -191,7 +199,7 @@ const EventForm = () => {
                 ))}
               </div>
 
-              <label>Date:</label>
+              <label>Date: <span className="required">*</span></label>
               <input
                 type="date"
                 onChange={(e) => setDate(e.target.value)}
@@ -199,7 +207,7 @@ const EventForm = () => {
                 className={emptyFields.includes('date') ? 'error' : ''}
               />
 
-              <label>Start Time:</label>
+              <label>Start Time: <span className="required">*</span></label>
               <input
                 type="time"
                 onChange={(e) => setStartTime(e.target.value)}
@@ -207,7 +215,7 @@ const EventForm = () => {
                 className={emptyFields.includes('startTime') ? 'error' : ''}
               />
 
-              <label>End Time:</label>
+              <label>End Time: <span className="required">*</span></label>
               <input
                 type="time"
                 onChange={(e) => setEndTime(e.target.value)}
@@ -220,10 +228,22 @@ const EventForm = () => {
                 value={classroom}
               />
 
-              <button type="submit" className="submit">Add Event</button>
+              <button 
+                type="submit" 
+                className="submit" 
+                disabled={isLoading}
+              >
+                {isLoading ? 'Adding...' : 'Add Event'}
+              </button>
+              
               {error && <div className="error">{error}</div>}
 
-              <button type="button" onClick={closeModal} className="close-modal">
+              <button 
+                type="button" 
+                onClick={closeModal} 
+                className="close-modal"
+                disabled={isLoading}
+              >
                 Close
               </button>
             </form>
