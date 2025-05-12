@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useAuthContext } from "../hooks/useAuthContext";
 import { useEventsContext } from '../hooks/useEventsContext'; 
 import { useClassContext } from '../hooks/useClassContext';
@@ -7,28 +7,33 @@ import Calendar from '../components/Calendar';
 
 const Home = () => {
   const { user } = useAuthContext();
-  const { events = [], fetchEvents, deleteEvent, updateEvent } = useEventsContext(); // Use the enhanced context
+  const { events = [], fetchEvents, deleteEvent, updateEvent } = useEventsContext();
   const { classroom } = useClassContext();
   const currentDate = new Date().toISOString().split('T')[0]; 
   const [startDate, setStartDate] = useState(currentDate);
 
-  useEffect(() => {
+  // Memoize fetchEvents call with useCallback
+  const handleFetchEvents = useCallback(() => {
     if (user) {
-      fetchEvents(); // Using the enhanced context function
+      fetchEvents();
       console.log('User in Home:', user);
     }
   }, [user, fetchEvents]);
+  
+  useEffect(() => {
+    handleFetchEvents();
+  }, [handleFetchEvents]);
 
-  // DELETE event handler using the enhanced context
-  const handleDeleteEvent = async (eventId) => {
+  // DELETE event handler using useCallback
+  const handleDeleteEvent = useCallback(async (eventId) => {
     await deleteEvent(eventId);
-  };
+  }, [deleteEvent]);
 
-  // EDIT event handler using the enhanced context
-  const handleEditEvent = async (eventId, updatedEvent) => {
+  // EDIT event handler using useCallback
+  const handleEditEvent = useCallback(async (eventId, updatedEvent) => {
     await updateEvent(eventId, updatedEvent);
     window.location.reload();
-  };
+  }, [updateEvent]);
 
   // home page
   return (
