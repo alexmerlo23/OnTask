@@ -1,5 +1,5 @@
 import React, { createContext, useReducer, useCallback, useMemo } from 'react';
-import { useAuthContext } from './useAuthContext';
+import { useAuthContext } from '../hooks/useAuthContext'; // Fixed import path
 
 export const EventsContext = createContext();
 
