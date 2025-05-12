@@ -36,7 +36,7 @@ export const JoinClass = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${user.token}`,
         },
-        body: JSON.stringify({ newCode: trimmedCode }), // Remove email
+        body: JSON.stringify({ code: trimmedCode }), // Remove email
       });
 
       // Check if response is OK
