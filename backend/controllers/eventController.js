@@ -3,11 +3,11 @@ const mongoose = require('mongoose');
 
 // Get all events
 const getEvents = async (req, res) => {
-  const classCode = req.user.code;
+  const userEmail = req.user.email;
 
   try {
-    // search events based on class code
-    const events = await Event.find({ classCode }).sort({ createdAt: -1 });
+    // search events based on user's email
+    const events = await Event.find({ email: userEmail }).sort({ createdAt: -1 });
     console.log(events)
     res.status(200).json(events);
   } catch (error) {
@@ -40,6 +40,12 @@ const getEvent = async (req, res) => {
 // Create new event
 const createEvent = async (req, res) => {
   const { text, type, color, start, end, classroom } = req.body;
+  
+  // Ensure email is extracted from authenticated user
+  if (!req.user || !req.user.email) {
+    return res.status(401).json({ error: 'User authentication failed' });
+  }
+  const email = req.user.email;
 
   // make sure all fields are filled
   let emptyFields = [];
@@ -56,12 +62,20 @@ const createEvent = async (req, res) => {
   }
 
   try {
-    // create the event
-    const event = await Event.create({ text, type, color, start, end, classroom });
-    console.log("Event saved:", event); // Log the saved event to check if color is saved
+    // create the event with user's email
+    const event = await Event.create({ 
+      text, 
+      type, 
+      color, 
+      start, 
+      end, 
+      classroom,
+      email 
+    });
+    console.log("Event saved:", event);
     res.status(200).json(event);
   } catch (error) {
-    console.error("Error creating event:", error); // Log error if creation fails
+    console.error("Error creating event:", error);
     res.status(400).json({ error: error.message });
   }
 };

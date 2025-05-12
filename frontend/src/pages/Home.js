@@ -40,6 +40,7 @@ const Home = () => {
   useEffect(() => {
     if (user) {
       fetchEvents();
+      console.log('User in Home:', user);
     }
   }, [fetchEvents, user]);
 

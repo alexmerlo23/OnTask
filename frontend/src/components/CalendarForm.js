@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useEventsContext } from "../hooks/useEventsContext";
 import { useAuthContext } from '../hooks/useAuthContext';
 
@@ -13,11 +13,39 @@ const EventForm = () => {
   const [endTime, setEndTime] = useState('');
   const [color, setColor] = useState('');
   const [type, setType] = useState('');
-  const [classroom, setClassroom] = useState(user.code);
+  const [classroom, setClassroom] = useState('');
   const [error, setError] = useState(null);
   const [emptyFields, setEmptyFields] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [typeOptions, setTypeOptions] = useState(['Homework', 'Test', 'Document', 'Other']);
+
+  // Fetch classroom data when the component mounts
+  useEffect(() => {
+    const fetchClassroom = async () => {
+      if (user) {
+        try {
+          const response = await fetch(`/api/classes/by-email?email=${user.email}`, {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${user.token}`,
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to fetch classroom');
+          }
+
+          const classroomData = await response.json();
+          setClassroom(classroomData.classroomName);
+        } catch (error) {
+          console.error('Error fetching classroom:', error);
+          setError('Could not fetch classroom information');
+        }
+      }
+    };
+
+    fetchClassroom();
+  }, [user]);
 
   // when form is submitted
   const handleSubmit = async (e) => {
@@ -51,8 +79,12 @@ const EventForm = () => {
       type,
       start: start.toISOString(),
       end: end.toISOString(),
-      classroom: 'default'
+      classroom: classroom || 'default',
+      email: user.email
     };
+
+    console.log('Event to be created:', event);
+    console.log('User:', user);
 
     try {
       // post the event to the database

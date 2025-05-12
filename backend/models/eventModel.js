@@ -1,8 +1,6 @@
 const mongoose = require('mongoose');
 
-
 const Schema = mongoose.Schema;
-
 
 const eventSchema = new Schema({
   text: {
@@ -18,18 +16,21 @@ const eventSchema = new Schema({
     required: false,
   },
   start: {
-    type: String, // or Date, if you prefer to store it as a Date object
+    type: String,
     required: true,
   },
   end: {
-    type: String, // or Date
+    type: String,
     required: true,
   },
   classroom: {
     type: String,
     required: true,
   },
+  email: {
+    type: String,
+    required: true,
+  }
 }, { timestamps: true });
-
 
 module.exports = mongoose.model('Event', eventSchema);
