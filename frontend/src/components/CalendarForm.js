@@ -95,7 +95,7 @@ const EventForm = () => {
       // store event info into a variable
       const event = { 
         text,
-        backColor: color || 'Grey', // Default color if none selected
+        color: color || 'Grey', // Default color if none selected
         type,
         start: start.toISOString(),
         end: end.toISOString(),
