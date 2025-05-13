@@ -42,48 +42,61 @@ export const JoinClass = () => {
 
       console.log('Response status:', response.status);
       
-      const text = await response.text();
-      console.log('Raw response:', text);
-
+      // For debugging
+      const contentType = response.headers.get('Content-Type');
+      console.log('Content-Type header:', contentType);
+      
       if (!response.ok) {
-        let errorMessage;
+        const text = await response.text();
+        console.log('Error response:', text);
+        
         try {
           const json = JSON.parse(text);
-          errorMessage = json.error || `Server responded with status ${response.status}`;
-          if (response.status === 401) {
-            errorMessage = 'Session expired. Please log in again.';
-            dispatch({ type: 'LOGOUT' });
-          }
-        } catch {
-          errorMessage = text || `Server responded with status ${response.status}`;
+          throw new Error(json.error || `Server error: ${response.status}`);
+        } catch (parseError) {
+          throw new Error(`Server error: ${response.status}. ${text || ''}`);
         }
-        throw new Error(errorMessage);
       }
-
-      // Try to parse the response as JSON
+      
+      // Check if response has content
+      const text = await response.text();
+      console.log('Raw response text:', text);
+      
+      if (!text) {
+        throw new Error('Server returned empty response');
+      }
+      
       let userData;
       try {
         userData = JSON.parse(text);
-      } catch (e) {
+        console.log('Parsed user data:', userData);
+      } catch (parseError) {
+        console.error('JSON parse error:', parseError);
         throw new Error('Server returned invalid JSON');
       }
 
-      // Update local storage with the new user data
-      const updatedUser = { ...user, code: userData.code };
+      // Create updated user object with new code
+      const updatedUser = {
+        ...user,
+        code: userData.code
+      };
+      
+      console.log('Updated user object:', updatedUser);
+      
+      // Update local storage
       localStorage.setItem('user', JSON.stringify(updatedUser));
       
-      // Update the auth context with the updated user
+      // Update context
       dispatch({ type: 'LOGIN', payload: updatedUser });
       
       setSuccess('Successfully joined class!');
-      
-      // Close modal after a short delay
       setTimeout(() => {
         setIsModalOpen(false);
         setNewCode('');
       }, 1500);
       
     } catch (err) {
+      console.error('Join class error:', err);
       setError(err.message || 'An error occurred');
     } finally {
       setIsLoading(false);
