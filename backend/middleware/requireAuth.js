@@ -2,30 +2,29 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
 
 const requireAuth = async (req, res, next) => {
-  // Get authorization header
   const { authorization } = req.headers;
-
+  console.log('Authorization header:', authorization);
   if (!authorization) {
+    res.setHeader('Content-Type', 'application/json');
+    console.log('No authorization header, returning 401');
     return res.status(401).json({ error: 'Authorization token required' });
   }
-
-  // Extract token (format: "Bearer <token>")
   const token = authorization.split(' ')[1];
-
   try {
-    // Verify token
     const { _id } = jwt.verify(token, process.env.SECRET);
-
-    // Attach user to request
+    console.log('Verified user ID:', _id);
     req.user = await User.findOne({ _id }).select('_id email');
     if (!req.user) {
+      res.setHeader('Content-Type', 'application/json');
+      console.log('User not found for ID:', _id);
       return res.status(401).json({ error: 'User not found' });
     }
-
+    console.log('User authenticated:', req.user.email);
     next();
   } catch (error) {
-    console.error('Authentication error:', error);
-    res.status(401).json({ error: 'Invalid or expired token' });
+    console.error('Authentication error:', error.message);
+    res.setHeader('Content-Type', 'application/json');
+    return res.status(401).json({ error: 'Invalid or expired token' });
   }
 };
 

@@ -8,12 +8,13 @@ const createToken = (_id) => {
 // Login a user
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
-
   try {
     const user = await User.login(email, password);
     const token = createToken(user._id);
+    res.setHeader('Content-Type', 'application/json');
     res.status(200).json({ email, role: user.role, code: user.code, name: user.name, token });
   } catch (error) {
+    res.setHeader('Content-Type', 'application/json');
     res.status(400).json({ error: error.message });
   }
 };
@@ -21,12 +22,13 @@ const loginUser = async (req, res) => {
 // Signup a user
 const signupUser = async (req, res) => {
   const { email, password, role, code, name } = req.body;
-
   try {
     const user = await User.signup(email, password, role, code, name);
     const token = createToken(user._id);
+    res.setHeader('Content-Type', 'application/json');
     res.status(200).json({ email, role: user.role, code: user.code, name, token });
   } catch (error) {
+    res.setHeader('Content-Type', 'application/json');
     res.status(400).json({ error: error.message });
   }
 };
@@ -34,33 +36,31 @@ const signupUser = async (req, res) => {
 // Update user code
 const updateCode = async (req, res) => {
   const { newCode } = req.body;
-  const user = req.user; // From requireAuth middleware
-
-  // Validate input
+  const user = req.user;
+  console.log('Processing updateCode for user:', user.email, 'with newCode:', newCode);
+  res.setHeader('Content-Type', 'application/json');
   if (!newCode) {
+    console.log('No newCode provided, returning 400');
     return res.status(400).json({ error: 'New code is required' });
   }
-
-  // Optional: Validate newCode format (e.g., length or pattern)
   if (newCode.length < 3) {
+    console.log('Invalid newCode length, returning 400');
     return res.status(400).json({ error: 'Code must be at least 3 characters' });
   }
-
   try {
-    // Update the user's code
     const updatedUser = await User.findOneAndUpdate(
-      { _id: user._id }, // Use authenticated user's _id
+      { _id: user._id },
       { code: newCode },
       { new: true }
     );
-
     if (!updatedUser) {
+      console.log('User not found for ID:', user._id);
       return res.status(404).json({ error: 'User not found' });
     }
-
+    console.log('Code updated successfully for user:', user.email);
     res.status(200).json({ message: 'Code updated successfully', code: updatedUser.code });
   } catch (err) {
-    console.error('Error updating code:', err);
+    console.error('Database error in updateCode:', err.message, err.stack);
     res.status(500).json({ error: 'An error occurred while updating the code' });
   }
 };

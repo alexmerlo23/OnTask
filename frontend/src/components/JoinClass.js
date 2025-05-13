@@ -14,14 +14,12 @@ export const JoinClass = () => {
     setIsLoading(true);
     setError(null);
 
-    // Verify user
     if (!user || !user.token) {
       setError('User is not logged in or token is missing');
       setIsLoading(false);
       return;
     }
 
-    // Validate input
     const trimmedCode = newCode.trim();
     if (!trimmedCode) {
       setError('Class code cannot be empty');
@@ -29,6 +27,7 @@ export const JoinClass = () => {
       return;
     }
 
+    console.log('Sending token:', user.token);
     try {
       const response = await fetch('/api/user', {
         method: 'PATCH',
@@ -36,34 +35,43 @@ export const JoinClass = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${user.token}`,
         },
-        body: JSON.stringify({ newCode: trimmedCode }), // Remove email
+        body: JSON.stringify({ newCode: trimmedCode }),
       });
 
-      // Check if response is OK
+      console.log('Response status:', response.status);
+      console.log('Response headers:', Object.fromEntries(response.headers));
+      const text = await response.text();
+      console.log('Raw response:', text);
+
       if (!response.ok) {
-        const text = await response.text();
         let errorMessage;
         try {
           const json = JSON.parse(text);
           errorMessage = json.error || `Server responded with status ${response.status}`;
+          if (response.status === 401) {
+            errorMessage = 'Session expired. Please log in again.';
+            dispatch({ type: 'LOGOUT' });
+          }
         } catch {
           errorMessage = text || `Server responded with status ${response.status}`;
         }
         throw new Error(errorMessage);
       }
 
-      // Check if response has JSON content
       const contentType = response.headers.get('Content-Type');
       if (!contentType || !contentType.includes('application/json')) {
-        throw new Error('Server did not return JSON');
+        console.log('Invalid Content-Type:', contentType);
+        throw new Error(`Server did not return JSON. Content-Type: ${contentType}`);
       }
 
-      const json = await response.json();
+      let json;
+      try {
+        json = JSON.parse(text);
+      } catch {
+        throw new Error('Server returned invalid JSON');
+      }
 
-      // Update user context
       dispatch({ type: 'UPDATE_CODE', payload: { code: trimmedCode } });
-
-      // Close modal on success
       setIsModalOpen(false);
       setNewCode('');
     } catch (err) {
