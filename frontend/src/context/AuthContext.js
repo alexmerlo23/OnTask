@@ -9,7 +9,14 @@ export const authReducer = (state, action) => {
     case 'LOGOUT':
       return { user: null }
     case 'UPDATE_CODE':
-      return { ...state, user: action.payload }
+      // Make sure we're just updating the code property and keeping all other user properties
+      return { 
+        ...state, 
+        user: {
+          ...state.user,
+          code: action.payload.code
+        } 
+      }
     case 'UPDATE_USER':
       return { ...state, user: action.payload };
     default:

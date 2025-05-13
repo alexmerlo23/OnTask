@@ -6,6 +6,7 @@ export const JoinClass = () => {
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [success, setSuccess] = useState(null);
 
   const { user, dispatch } = useAuthContext();
 
@@ -13,6 +14,7 @@ export const JoinClass = () => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
+    setSuccess(null);
 
     if (!user || !user.token) {
       setError('User is not logged in or token is missing');
@@ -39,7 +41,7 @@ export const JoinClass = () => {
       });
 
       console.log('Response status:', response.status);
-      console.log('Response headers:', Object.fromEntries(response.headers));
+      
       const text = await response.text();
       console.log('Raw response:', text);
 
@@ -58,22 +60,29 @@ export const JoinClass = () => {
         throw new Error(errorMessage);
       }
 
-      const contentType = response.headers.get('Content-Type');
-      if (!contentType || !contentType.includes('application/json')) {
-        console.log('Invalid Content-Type:', contentType);
-        throw new Error(`Server did not return JSON. Content-Type: ${contentType}`);
-      }
-
-      let json;
+      // Try to parse the response as JSON
+      let userData;
       try {
-        json = JSON.parse(text);
-      } catch {
+        userData = JSON.parse(text);
+      } catch (e) {
         throw new Error('Server returned invalid JSON');
       }
 
-      dispatch({ type: 'UPDATE_CODE', payload: { code: trimmedCode } });
-      setIsModalOpen(false);
-      setNewCode('');
+      // Update local storage with the new user data
+      const updatedUser = { ...user, code: userData.code };
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      
+      // Update the auth context with the updated user
+      dispatch({ type: 'LOGIN', payload: updatedUser });
+      
+      setSuccess('Successfully joined class!');
+      
+      // Close modal after a short delay
+      setTimeout(() => {
+        setIsModalOpen(false);
+        setNewCode('');
+      }, 1500);
+      
     } catch (err) {
       setError(err.message || 'An error occurred');
     } finally {
@@ -103,9 +112,10 @@ export const JoinClass = () => {
               />
 
               <button type="submit" className="submit" disabled={isLoading}>
-                Join Class
+                {isLoading ? 'Joining...' : 'Join Class'}
               </button>
               {error && <div className="error">{error}</div>}
+              {success && <div className="success">{success}</div>}
 
               <button type="button" onClick={closeModal} className="close-modal">
                 Close
