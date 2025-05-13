@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuthContext } from '../hooks/useAuthContext';
+import API_URL from '../config/api'; // Import the API_URL
 
 export const JoinClass = () => {
   const [newCode, setNewCode] = useState('');
@@ -30,8 +31,10 @@ export const JoinClass = () => {
     }
 
     console.log('Sending token:', user.token);
+    console.log('Using API URL:', `${API_URL}/api/user`); // Log the complete URL
     try {
-      const response = await fetch('/api/user', {
+      // Use the API_URL here instead of a relative path
+      const response = await fetch(`${API_URL}/api/user`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -39,26 +42,42 @@ export const JoinClass = () => {
         },
         body: JSON.stringify({ newCode: trimmedCode }),
       });
-    
+
       console.log('Response status:', response.status);
       
-      // Get response as text first
-      const responseText = await response.text();
-      console.log('Raw response text:', responseText);
+      // For debugging
+      const contentType = response.headers.get('Content-Type');
+      console.log('Content-Type header:', contentType);
       
-      // Only try to parse as JSON if there's content
-      if (!responseText || responseText.trim() === '') {
+      if (!response.ok) {
+        const text = await response.text();
+        console.log('Error response:', text);
+        
+        try {
+          const json = JSON.parse(text);
+          throw new Error(json.error || `Server error: ${response.status}`);
+        } catch (parseError) {
+          throw new Error(`Server error: ${response.status}. ${text || ''}`);
+        }
+      }
+      
+      // Check if response has content
+      const text = await response.text();
+      console.log('Raw response text:', text);
+      
+      if (!text) {
         throw new Error('Server returned empty response');
       }
       
-      // Parse the text as JSON
-      const userData = JSON.parse(responseText);
-      console.log('Parsed user data:', userData);
-      
-      if (!response.ok) {
-        throw new Error(userData.error || `Server error: ${response.status}`);
+      let userData;
+      try {
+        userData = JSON.parse(text);
+        console.log('Parsed user data:', userData);
+      } catch (parseError) {
+        console.error('JSON parse error:', parseError);
+        throw new Error('Server returned invalid JSON');
       }
-    
+
       // Create updated user object with new code
       const updatedUser = {
         ...user,
@@ -78,6 +97,7 @@ export const JoinClass = () => {
         setIsModalOpen(false);
         setNewCode('');
       }, 1500);
+      
     } catch (err) {
       console.error('Join class error:', err);
       setError(err.message || 'An error occurred');
