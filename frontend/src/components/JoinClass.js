@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuthContext } from '../hooks/useAuthContext';
-import API_URL from '../config/api'; // Import the API_URL
+import { useEventsContext } from '../hooks/useEventsContext'; // Import Events Context hook
+import API_URL from '../config/api';
 
 export const JoinClass = () => {
   const [newCode, setNewCode] = useState('');
@@ -10,6 +11,7 @@ export const JoinClass = () => {
   const [success, setSuccess] = useState(null);
 
   const { user, dispatch } = useAuthContext();
+  const { fetchEvents } = useEventsContext(); // Get fetchEvents function from context
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,10 +32,8 @@ export const JoinClass = () => {
       return;
     }
 
-    console.log('Sending token:', user.token);
-    console.log('Using API URL:', `${API_URL}/api/user`); // Log the complete URL
     try {
-      // Use the API_URL here instead of a relative path
+      // Use the API_URL to join the class
       const response = await fetch(`${API_URL}/api/user`, {
         method: 'PATCH',
         headers: {
@@ -42,16 +42,9 @@ export const JoinClass = () => {
         },
         body: JSON.stringify({ newCode: trimmedCode }),
       });
-
-      console.log('Response status:', response.status);
-      
-      // For debugging
-      const contentType = response.headers.get('Content-Type');
-      console.log('Content-Type header:', contentType);
       
       if (!response.ok) {
         const text = await response.text();
-        console.log('Error response:', text);
         
         try {
           const json = JSON.parse(text);
@@ -61,9 +54,7 @@ export const JoinClass = () => {
         }
       }
       
-      // Check if response has content
       const text = await response.text();
-      console.log('Raw response text:', text);
       
       if (!text) {
         throw new Error('Server returned empty response');
@@ -72,9 +63,7 @@ export const JoinClass = () => {
       let userData;
       try {
         userData = JSON.parse(text);
-        console.log('Parsed user data:', userData);
       } catch (parseError) {
-        console.error('JSON parse error:', parseError);
         throw new Error('Server returned invalid JSON');
       }
 
@@ -84,18 +73,22 @@ export const JoinClass = () => {
         code: userData.code
       };
       
-      console.log('Updated user object:', updatedUser);
-      
       // Update local storage
       localStorage.setItem('user', JSON.stringify(updatedUser));
       
       // Update context
       dispatch({ type: 'LOGIN', payload: updatedUser });
       
-      setSuccess('Successfully joined class!');
+      // Now fetch events for the new class code
+      await fetchEvents();
+      
+      setSuccess('Successfully joined class! Fetching class events...');
+      
+      // Close modal after showing success message briefly
       setTimeout(() => {
         setIsModalOpen(false);
         setNewCode('');
+        window.location.reload(); // Force refresh to ensure events are displayed
       }, 1500);
       
     } catch (err) {
