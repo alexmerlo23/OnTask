@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useClassContext } from "../hooks/useClassContext";
 import { useAuthContext } from '../hooks/useAuthContext';
+import API_URL from '../config/api'; // Import API_URL
 
 const ClassroomForm = () => {
   const { dispatch } = useClassContext();
@@ -30,8 +31,10 @@ const ClassroomForm = () => {
     }
 
     try {
-      // post the class to the database
-      const response = await fetch('/api/classes', {
+      console.log('Creating class at:', `${API_URL}/api/classes`);
+      
+      // post the class to the database - use API_URL here
+      const response = await fetch(`${API_URL}/api/classes`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -56,8 +59,10 @@ const ClassroomForm = () => {
       const classData = await response.json();
       dispatch({ type: 'CREATE_CLASS', payload: classData });
 
-      // patch the user with the class code
-      const responseTwo = await fetch('/api/user', {
+      console.log('Updating user code at:', `${API_URL}/api/user`);
+      
+      // patch the user with the class code - use API_URL here
+      const responseTwo = await fetch(`${API_URL}/api/user`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -84,7 +89,6 @@ const ClassroomForm = () => {
       setError('An unexpected error occurred.');
     }
     window.location.reload();
-
   };
 
   // functions to open and close the form modal
