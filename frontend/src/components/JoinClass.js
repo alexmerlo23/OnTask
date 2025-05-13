@@ -39,42 +39,26 @@ export const JoinClass = () => {
         },
         body: JSON.stringify({ newCode: trimmedCode }),
       });
-
+    
       console.log('Response status:', response.status);
       
-      // For debugging
-      const contentType = response.headers.get('Content-Type');
-      console.log('Content-Type header:', contentType);
+      // Get response as text first
+      const responseText = await response.text();
+      console.log('Raw response text:', responseText);
       
-      if (!response.ok) {
-        const text = await response.text();
-        console.log('Error response:', text);
-        
-        try {
-          const json = JSON.parse(text);
-          throw new Error(json.error || `Server error: ${response.status}`);
-        } catch (parseError) {
-          throw new Error(`Server error: ${response.status}. ${text || ''}`);
-        }
-      }
-      
-      // Check if response has content
-      const text = await response.text();
-      console.log('Raw response text:', text);
-      
-      if (!text) {
+      // Only try to parse as JSON if there's content
+      if (!responseText || responseText.trim() === '') {
         throw new Error('Server returned empty response');
       }
       
-      let userData;
-      try {
-        userData = JSON.parse(text);
-        console.log('Parsed user data:', userData);
-      } catch (parseError) {
-        console.error('JSON parse error:', parseError);
-        throw new Error('Server returned invalid JSON');
+      // Parse the text as JSON
+      const userData = JSON.parse(responseText);
+      console.log('Parsed user data:', userData);
+      
+      if (!response.ok) {
+        throw new Error(userData.error || `Server error: ${response.status}`);
       }
-
+    
       // Create updated user object with new code
       const updatedUser = {
         ...user,
@@ -94,7 +78,6 @@ export const JoinClass = () => {
         setIsModalOpen(false);
         setNewCode('');
       }, 1500);
-      
     } catch (err) {
       console.error('Join class error:', err);
       setError(err.message || 'An error occurred');

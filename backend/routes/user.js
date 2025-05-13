@@ -11,11 +11,7 @@ router.post('/login', loginUser);
 router.post('/signup', signupUser);
 
 // Update code route (protected route)
-// Added explicit content-type middleware
-router.patch('/', requireAuth, (req, res, next) => {
-  // Force content-type header for all responses on this route
-  res.setHeader('Content-Type', 'application/json');
-  next();
-}, updateCode);
+// Simplified - let the controller handle the Content-Type
+router.patch('/', requireAuth, updateCode);
 
 module.exports = router;
