@@ -6,7 +6,7 @@ const Signup = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { signup, error, isLoading } = useSignup();
-  const [selectedRole, setSelectedRole] = useState('student');
+  const [selectedRole, setSelectedRole] = useState('teacher');
   const [code, setCode] = useState('');
 
   // hanldes clicking signup
