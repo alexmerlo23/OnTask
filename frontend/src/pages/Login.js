@@ -20,8 +20,8 @@ const Login = () => {
       <div className="login-content">
         <div className="left-section">
           <h2>Welcome to OnTask!</h2>
-          <p>This website is made to enhance communication among teachers, parents, and students. Users can track assignments, view announcements, and access a weekly calendar. Our platform improves organization and clarity, ensuring a user-friendly experience while safeguarding sensitive information.</p>
-        </div>
+          <p>This website is designed to enhance communication among teachers, parents, and students. Teachers can post reminders and assignments, while students and parents can view them through a shared calendar. Our platform promotes organization and clarity, providing a user-friendly experience while protecting sensitive information.</p>
+      </div>
 
         <form className="login-form" onSubmit={handleSubmit}>
           <h3>Log In</h3>
