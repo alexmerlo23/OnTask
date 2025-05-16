@@ -278,7 +278,7 @@ form.login button:hover{
 
 .role-button.active {
   background-color: #00996e; /* Change to the desired active color */
-  color: black; /* Change text color if needed */
+  color: white; /* Change text color if needed */
   font-weight: 600;
 }
 
