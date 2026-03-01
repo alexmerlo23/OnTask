@@ -23,7 +23,7 @@ export const useSignup = () => {
       if (!response.ok) {
         setIsLoading(false);
         setError(json.error);
-        return;
+        return false;
       }
 
       // save the user to local storage
@@ -34,10 +34,12 @@ export const useSignup = () => {
 
       // update loading state
       setIsLoading(false);
+      return true;
     } catch (err) {
       console.error('Signup error:', err);
       setIsLoading(false);
       setError('Failed to connect to server. Please try again.');
+      return false;
     }
   };
 

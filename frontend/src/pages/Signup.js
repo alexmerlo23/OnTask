@@ -13,8 +13,10 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    await signup(email, password, selectedRole, code, name);
-    window.location.reload();
+    const successfulSignup = await signup(email, password, selectedRole, code, name);
+    if (successfulSignup) {
+      window.location.reload();
+    }
   };
 
   // switches role from student to teacher
