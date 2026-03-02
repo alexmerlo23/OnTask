@@ -10,8 +10,10 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    await login(email, password)
-    window.location.reload();
+    const successfulLogin = await login(email, password)
+    if (successfulLogin) {
+      window.location.reload();
+    }
   }
 
   // login screen
