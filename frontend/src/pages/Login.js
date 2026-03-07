@@ -12,7 +12,7 @@ const Login = () => {
 
     const successfulLogin = await login(email, password)
     if (successfulLogin) {
-      window.location.reload();
+      // window.location.reload();
     }
   }
 

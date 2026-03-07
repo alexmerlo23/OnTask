@@ -15,7 +15,7 @@ const Signup = () => {
 
     const successfulSignup = await signup(email, password, selectedRole, code, name);
     if (successfulSignup) {
-      window.location.reload();
+      // window.location.reload();
     }
   };
 
