@@ -7,15 +7,17 @@ const getEvents = async (req, res) => {
   const userRole = req.user.role;
   const userCode = req.user.code;
 
+  console.log('getEvents called:', { userEmail, userRole, userCode });
+
   try {
     let events;
 
     if (userRole === 'student') {
-      // Students fetch events matching their class code
       events = await Event.find({ classroom: userCode }).sort({ createdAt: -1 });
+      console.log('Student events found:', events.length, 'for code:', userCode);
     } else {
-      // Teachers fetch their own events
       events = await Event.find({ email: userEmail }).sort({ createdAt: -1 });
+      console.log('Teacher events found:', events.length, 'for email:', userEmail);
     }
 
     res.status(200).json(events);
