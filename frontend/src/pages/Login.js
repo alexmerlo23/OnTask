@@ -22,7 +22,7 @@ const Login = () => {
       <div className="login-content">
         <div className="left-section">
           <h2>Welcome to OnTask!</h2>
-          <p>This website is designed to enhance communication among teachers, parents, and students. Teachers can post reminders and assignments, while students and parents can view them through a shared calendar. Our platform promotes organization and clarity, providing a user-friendly experience while protecting sensitive information.</p>
+          <p>At OnTask, our goal is to help parents play an active role in their child’s education. Through the power of a shared calendar, teachers can post assignments while parents track progress and mark them as completed. This gives teachers reassurance that assignments are being completed legitimately while also keeping parents informed about their child's course work.</p>
       </div>
 
         <form className="login-form" onSubmit={handleSubmit}>
