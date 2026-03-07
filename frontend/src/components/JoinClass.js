@@ -33,7 +33,6 @@ export const JoinClass = () => {
     }
 
     try {
-      // Use the API_URL to join the class
       const response = await fetch(`${API_URL}/api/user`, {
         method: 'PATCH',
         headers: {
@@ -42,10 +41,9 @@ export const JoinClass = () => {
         },
         body: JSON.stringify({ newCode: trimmedCode }),
       });
-      
+
       if (!response.ok) {
         const text = await response.text();
-        
         try {
           const json = JSON.parse(text);
           throw new Error(json.error || `Server error: ${response.status}`);
@@ -53,13 +51,10 @@ export const JoinClass = () => {
           throw new Error(`Server error: ${response.status}. ${text || ''}`);
         }
       }
-      
+
       const text = await response.text();
-      
-      if (!text) {
-        throw new Error('Server returned empty response');
-      }
-      
+      if (!text) throw new Error('Server returned empty response');
+
       let userData;
       try {
         userData = JSON.parse(text);
@@ -67,33 +62,24 @@ export const JoinClass = () => {
         throw new Error('Server returned invalid JSON');
       }
 
-      // Create updated user object with new code
-      const updatedUser = {
-        ...user,
-        code: userData.code
-      };
-      
-      // Update local storage
+      const updatedUser = { ...user, code: userData.code };
       localStorage.setItem('user', JSON.stringify(updatedUser));
-      
-      // Update context
       dispatch({ type: 'LOGIN', payload: updatedUser });
-      
-      // Now fetch events for the new class code
+
       await fetchEvents();
-      
-      setSuccess('Successfully joined class! Fetching class events...');
-      
-      // Close modal after showing success message briefly
+
+      setSuccess('Successfully joined class!');
+
+      // Only reload on success
       setTimeout(() => {
         setIsModalOpen(false);
         setNewCode('');
-        window.location.reload(); // Force refresh to ensure events are displayed
+        window.location.reload();
       }, 1500);
-      
+
     } catch (err) {
       console.error('Join class error:', err);
-      setError(err.message || 'An error occurred');
+      setError(err.message || 'An error occurred'); // Error stays visible, no reload
     } finally {
       setIsLoading(false);
     }

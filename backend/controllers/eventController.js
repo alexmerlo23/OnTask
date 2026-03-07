@@ -4,14 +4,23 @@ const mongoose = require('mongoose');
 // Get all events
 const getEvents = async (req, res) => {
   const userEmail = req.user.email;
+  const userRole = req.user.role;
+  const userCode = req.user.code;
 
   try {
-    // search events based on user's email
-    const events = await Event.find({ email: userEmail }).sort({ createdAt: -1 });
-    console.log(events)
+    let events;
+
+    if (userRole === 'student') {
+      // Students fetch events matching their class code
+      events = await Event.find({ classroom: userCode }).sort({ createdAt: -1 });
+    } else {
+      // Teachers fetch their own events
+      events = await Event.find({ email: userEmail }).sort({ createdAt: -1 });
+    }
+
     res.status(200).json(events);
   } catch (error) {
-    console.error("Error fetching events:", error); // Log error if there's an issue
+    console.error("Error fetching events:", error);
     res.status(500).json({ error: 'Failed to fetch events' });
   }
 };

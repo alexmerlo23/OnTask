@@ -64,7 +64,6 @@ const Account = () => {
     setSuccess("");
     setLoading(true);
 
-    // verify user
     if (!user) {
       setError("User is not logged in");
       setLoading(false);
@@ -72,7 +71,6 @@ const Account = () => {
     }
 
     try {
-      // patch the user code with absolute URL
       const response = await fetch(`${API_URL}/api/user`, {
         method: "PATCH",
         headers: {
@@ -91,20 +89,19 @@ const Account = () => {
         throw new Error(json.error || "Failed to join the class.");
       }
 
-      // Update user context and local storage
       const updatedUser = { ...user, code: teacherCode };
       dispatch({ type: "LOGIN", payload: updatedUser });
       localStorage.setItem("user", JSON.stringify(updatedUser));
 
       setClassroomData(json);
       setSuccess("Successfully joined the class!");
+      window.location.reload(); // Only reload on success
     } catch (err) {
       console.error("Error joining class:", err);
       setError(err.message || "An error occurred. Please try again.");
     } finally {
       setLoading(false);
     }
-    window.location.reload();
   };
 
   if (loading) {

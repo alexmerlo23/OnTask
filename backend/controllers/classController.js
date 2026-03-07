@@ -47,4 +47,25 @@ const getClassroomByEmail = async (req, res) => {
   }
 };
 
-module.exports = { createClassroom, getClassroomByEmail };
+const getClassroomByCode = async (req, res) => {
+  const { code } = req.params;
+
+  if (!code) {
+    return res.status(400).json({ error: 'Code is required' });
+  }
+
+  try {
+    const classroom = await Class.findOne({ code });
+
+    if (!classroom) {
+      return res.status(404).json({ error: 'No classroom found for this code' });
+    }
+
+    res.status(200).json(classroom);
+  } catch (error) {
+    console.error('Error fetching classroom by code:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+module.exports = { createClassroom, getClassroomByEmail, getClassroomByCode };
