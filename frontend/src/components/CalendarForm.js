@@ -42,7 +42,7 @@ const EventForm = () => {
           }
 
           const classroomData = await response.json();
-          setClassroom(classroomData.classroomName || 'default');
+          setClassroom(classroomData.code || 'default');
         } catch (error) {
           console.error('Error fetching classroom:', error);
           // Set a default classroom instead of showing an error
