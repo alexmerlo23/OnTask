@@ -15,6 +15,10 @@ const getEvents = async (req, res) => {
     if (userRole === 'student') {
       events = await Event.find({ classroom: userCode }).sort({ createdAt: -1 });
       console.log('Student events found:', events.length, 'for code:', userCode);
+  
+      // Add this to see what classroom values actually exist in the DB
+      const allEvents = await Event.find({ email: 'englishteacher@gmail.com' });
+      console.log('Teacher events classroom values:', allEvents.map(e => e.classroom));
     } else {
       events = await Event.find({ email: userEmail }).sort({ createdAt: -1 });
       console.log('Teacher events found:', events.length, 'for email:', userEmail);
