@@ -63,7 +63,7 @@ export const JoinClass = () => {
       }
 
       const updatedUser = { ...user, code: userData.code };
-      localStorage.setItem('user', JSON.stringify(updatedUser));
+      sessionStorage.setItem('user', JSON.stringify(updatedUser));
       dispatch({ type: 'LOGIN', payload: updatedUser });
 
       await fetchEvents();

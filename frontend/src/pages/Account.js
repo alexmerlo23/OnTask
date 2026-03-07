@@ -91,7 +91,7 @@ const Account = () => {
 
       const updatedUser = { ...user, code: teacherCode };
       dispatch({ type: "LOGIN", payload: updatedUser });
-      localStorage.setItem("user", JSON.stringify(updatedUser));
+      sessionStorage.setItem('user', JSON.stringify(updatedUser));
 
       setClassroomData(json);
       setSuccess("Successfully joined the class!");
