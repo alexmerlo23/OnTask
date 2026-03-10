@@ -12,7 +12,7 @@ const app = express();
 // CORS configuration
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? ['https://ontaskfrontenddev.onrender.com', 'https://ontaskfrontenddev.onrender.com'] 
+    ? ['https://ontaskfrontenddev.onrender.com', 'https://www.ontaskfrontenddev.onrender.com'] 
     : 'http://localhost:3000',
   methods: ['GET', 'POST', 'PATCH', 'DELETE'],
   credentials: true,
