@@ -96,10 +96,9 @@ const Home = () => {
     window.location.reload();
   }, [updateEvent]);
 
-  const isStudent = user?.role === 'student';
 
   return (
-    <div className={isStudent ? 'home home--with-sidebar' : 'home'}>
+    <div className="home home--with-sidebar">
       <div>
         <CalendarNav setStartDate={setStartDate} />
       </div>
@@ -111,7 +110,7 @@ const Home = () => {
           onEditEvent={handleEditEvent}
         />
       </div>
-      {isStudent && <UpcomingEvents events={events} />}
+      <UpcomingEvents events={events} />
     </div>
   );
 };

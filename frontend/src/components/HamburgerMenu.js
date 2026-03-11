@@ -22,8 +22,8 @@ const HamburgerMenu = () => {
         <div className="hamburger-menu">
           <Hamburger toggled={isOpen} toggle={setOpen} size={24} />
           <nav className="menu-content">
-            <Link to="/account" onClick={handleLinkClick}>Account</Link>
             <Link to="/" onClick={handleLinkClick}>Calendar</Link>
+            <Link to="/account" onClick={handleLinkClick}>Account</Link>
             <Link to="/manage-classes" onClick={handleLinkClick}>Manage Classes</Link>
             <Link to="/" onClick={handleLogout}>Log out</Link>
           </nav>

@@ -33,11 +33,17 @@ header a {
 }
 
 /* homepage */
+/* replace the existing .home rule with this */
 .home {
   display: grid;
   grid-template-columns: 1fr 4fr 1fr;
   gap: 20px;
 }
+
+.home--with-sidebar {
+  grid-template-columns: 1fr 4fr 280px;
+}
+
 .workout-details {
   background: #fff;
   border-radius: 4px;
