@@ -22,7 +22,7 @@ const Account = () => {
           : "None yet"}
         {" — "}
         <Link to="/manage-classes" className="account__manage-link">
-          Manage Classes →
+          Manage Classes
         </Link>
       </p>
     </div>

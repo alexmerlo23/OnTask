@@ -2,14 +2,34 @@ import { useState } from "react";
 import { useEventsContext } from "../hooks/useEventsContext";
 import { useAuthContext } from '../hooks/useAuthContext';
 
+// Returns { date, startTime, endTime } pre-filled to now → now+1hr in local time
+const getDefaultTimes = () => {
+  const now = new Date();
+
+  // "YYYY-MM-DD" in local time (not UTC, so the date input matches what the user sees)
+  const date = [
+    now.getFullYear(),
+    String(now.getMonth() + 1).padStart(2, '0'),
+    String(now.getDate()).padStart(2, '0'),
+  ].join('-');
+
+  const pad = (n) => String(n).padStart(2, '0');
+  const startTime = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+
+  const later = new Date(now.getTime() + 60 * 60 * 1000); // +1 hour
+  const endTime = `${pad(later.getHours())}:${pad(later.getMinutes())}`;
+
+  return { date, startTime, endTime };
+};
+
 const EventForm = () => {
   const { createEvent } = useEventsContext();
   const { user } = useAuthContext();
 
   const [text, setText] = useState('');
-  const [date, setDate] = useState('');
-  const [startTime, setStartTime] = useState('');
-  const [endTime, setEndTime] = useState('');
+  const [date, setDate] = useState(() => getDefaultTimes().date);
+  const [startTime, setStartTime] = useState(() => getDefaultTimes().startTime);
+  const [endTime, setEndTime] = useState(() => getDefaultTimes().endTime);
   const [color, setColor] = useState('');
   const [type, setType] = useState('');
   // For teachers: selected from their classes array. Default to first class if available.
@@ -70,10 +90,11 @@ const EventForm = () => {
       const result = await createEvent(event);
 
       if (result) {
+        const defaults = getDefaultTimes();
         setText('');
-        setDate('');
-        setStartTime('');
-        setEndTime('');
+        setDate(defaults.date);
+        setStartTime(defaults.startTime);
+        setEndTime(defaults.endTime);
         setColor('');
         setType('');
         setClassroom(user?.classes?.length > 0 ? user.classes[0].code : '');
