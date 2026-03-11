@@ -1,80 +1,46 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useEventsContext } from "../hooks/useEventsContext";
 import { useAuthContext } from '../hooks/useAuthContext';
-import API_URL from '../config/api';
 
 const EventForm = () => {
   const { createEvent } = useEventsContext();
   const { user } = useAuthContext();
 
-  // state variables to help with form
   const [text, setText] = useState('');
   const [date, setDate] = useState('');
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
   const [color, setColor] = useState('');
   const [type, setType] = useState('');
-  const [classroom, setClassroom] = useState('');
+  // For teachers: selected from their classes array. Default to first class if available.
+  const [classroom, setClassroom] = useState(
+    user?.classes?.length > 0 ? user.classes[0].code : ''
+  );
   const [error, setError] = useState(null);
   const [emptyFields, setEmptyFields] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [typeOptions, setTypeOptions] = useState(['Homework', 'Test', 'Document', 'Other']);
+  const [typeOptions] = useState(['Homework', 'Test', 'Document', 'Other']);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Fetch classroom data when the component mounts
-  useEffect(() => {
-    const fetchClassroom = async () => {
-      if (user) {
-        try {
-          setError(null);
-          const response = await fetch(`${API_URL}/api/classes/by-email?email=${user.email}`, {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${user.token}`,
-            },
-          });
-
-          if (!response.ok) {
-            // Instead of throwing an error, set a default classroom name
-            console.warn('Could not fetch classroom, using default');
-            setClassroom('default');
-            return;
-          }
-
-          const classroomData = await response.json();
-          setClassroom(classroomData.code || 'default');
-        } catch (error) {
-          console.error('Error fetching classroom:', error);
-          // Set a default classroom instead of showing an error
-          setClassroom('default');
-        }
-      }
-    };
-
-    fetchClassroom();
-  }, [user]);
-
-  // when form is submitted
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      // verify user
       if (!user) {
         setError('You must be logged in');
         setIsLoading(false);
         return;
       }
 
-      // Gather form data and check required fields
       const formErrors = [];
       if (!text) formErrors.push('text');
       if (!date) formErrors.push('date');
       if (!startTime) formErrors.push('startTime');
       if (!endTime) formErrors.push('endTime');
       if (!type) formErrors.push('type');
-      
+      if (!classroom) formErrors.push('classroom');
+
       if (formErrors.length > 0) {
         setEmptyFields(formErrors);
         setError('Please fill in all required fields');
@@ -82,7 +48,6 @@ const EventForm = () => {
         return;
       }
 
-      // put date and time into correct format
       const start = new Date(`${date}T${startTime}Z`);
       const end = new Date(`${date}T${endTime}Z`);
 
@@ -92,48 +57,41 @@ const EventForm = () => {
         return;
       }
 
-      // store event info into a variable
-      const event = { 
+      const event = {
         text,
-        color: color || 'Grey', // Default color if none selected
+        color: color || 'Grey',
         type,
         start: start.toISOString(),
         end: end.toISOString(),
-        classroom: classroom || 'default',
+        classroom, // this is the class code chosen by the teacher
         email: user.email
       };
 
-      console.log('Event to be created:', event);
-      
-      // Using the context function to create the event
       const result = await createEvent(event);
-      
+
       if (result) {
-        // Reset form on success
         setText('');
         setDate('');
         setStartTime('');
         setEndTime('');
         setColor('');
         setType('');
+        setClassroom(user?.classes?.length > 0 ? user.classes[0].code : '');
         setError(null);
         setEmptyFields([]);
         closeModal();
-        
-        // reload the window to update events on calendar
         window.location.reload();
       } else {
         setError('Failed to create event. Please try again.');
       }
-    } catch (error) {
-      console.error('Submit error:', error);
+    } catch (err) {
+      console.error('Submit error:', err);
       setError('An error occurred while creating the event.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  // functions to open and close modals
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
@@ -142,7 +100,8 @@ const EventForm = () => {
     'Purple', 'BlueViolet', 'RoyalBlue', 'DarkBlue', 'ForestGreen'
   ];
 
-  // The add event form
+  const teacherClasses = user?.classes || [];
+
   return (
     <>
       <button onClick={openModal} className="add-event-button">Add Event</button>
@@ -152,6 +111,31 @@ const EventForm = () => {
           <div className="modal-content">
             <form className="create" onSubmit={handleSubmit}>
               <h3>Add a New Event</h3>
+
+              {/* Class selector — only shown for teachers who have classes */}
+              {teacherClasses.length > 0 ? (
+                <>
+                  <label>
+                    Class: <span className="required">*</span>
+                  </label>
+                  <select
+                    className={`class-select ${emptyFields.includes('classroom') ? 'error' : ''}`}
+                    value={classroom}
+                    onChange={(e) => setClassroom(e.target.value)}
+                  >
+                    <option value="">— Select a class —</option>
+                    {teacherClasses.map((cls) => (
+                      <option key={cls.code} value={cls.code}>
+                        {cls.classroomName} ({cls.code})
+                      </option>
+                    ))}
+                  </select>
+                </>
+              ) : (
+                <div className="no-class-warning">
+                  ⚠️ You have no classes yet. <a href="/manage-classes">Create a class</a> before adding events.
+                </div>
+              )}
 
               <label>Event Title: <span className="required">*</span></label>
               <input
@@ -179,7 +163,6 @@ const EventForm = () => {
                       cursor: 'pointer',
                       fontSize: '1em',
                       margin: '2px',
-                      position: 'relative'
                     }}
                   >
                     {typeOption}
@@ -223,27 +206,13 @@ const EventForm = () => {
                 className={emptyFields.includes('endTime') ? 'error' : ''}
               />
 
-              <input 
-                type="hidden"
-                value={classroom}
-              />
-
-              <button 
-                type="submit" 
-                className="submit" 
-                disabled={isLoading}
-              >
+              <button type="submit" className="submit" disabled={isLoading || teacherClasses.length === 0}>
                 {isLoading ? 'Adding...' : 'Add Event'}
               </button>
-              
+
               {error && <div className="error">{error}</div>}
 
-              <button 
-                type="button" 
-                onClick={closeModal} 
-                className="close-modal"
-                disabled={isLoading}
-              >
+              <button type="button" onClick={closeModal} className="close-modal" disabled={isLoading}>
                 Close
               </button>
             </form>

@@ -42,6 +42,10 @@ function App() {
                 path="/account" 
                 element={<Account />} 
               />
+              <Route 
+                path="/manage-classes" 
+                element={<ManageClasses />} 
+              />
             </Routes>
           </div>
         </BrowserRouter>
