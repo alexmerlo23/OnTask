@@ -7,6 +7,7 @@ import Login from './pages/Login'
 import Signup from './pages/Signup'
 import Navbar from './components/Navbar'
 import Account from './pages/Account'
+import ManageClasses from './pages/ManageClasses'
 
 // Contexts
 import { ClassesContextProvider } from './context/ClassContext'  // Import the provider
