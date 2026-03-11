@@ -4,6 +4,15 @@ const validator = require('validator');
 
 const Schema = mongoose.Schema;
 
+// Sub-document schema for a class reference stored on the user
+// Teachers: { classroomName, code }  (teacherEmail left blank)
+// Students: { classroomName, code, teacherEmail }
+const classRefSchema = new Schema({
+  classroomName: { type: String, required: true },
+  code:          { type: String, required: true },
+  teacherEmail:  { type: String, default: '' }
+}, { _id: false });
+
 const userSchema = new Schema({
   email: {
     type: String,
@@ -17,13 +26,14 @@ const userSchema = new Schema({
   role: {
     type: String,
     required: false,
-    enum: ['student', 'teacher'], // restrict role to either 'student' or 'teacher'
-    default: 'student' // set default role to 'student'
+    enum: ['student', 'teacher'],
+    default: 'student'
   },
-  code: {
-    type: String,
-    required: false,
-    default: ''
+  // Replaces the old single `code` string field.
+  // Teachers store classes they created; students store classes they joined.
+  classes: {
+    type: [classRefSchema],
+    default: []
   },
   name: {
     type: String,
@@ -32,46 +42,29 @@ const userSchema = new Schema({
 });
 
 // static signup method
-userSchema.statics.signup = async function(email, password, role = 'student', code = '', name) {
+userSchema.statics.signup = async function(email, password, role = 'student', name) {
+  if (!email || !password) throw Error('All fields must be filled');
+  if (!validator.isEmail(email)) throw Error('Email not valid');
 
-  // validation
-  if (!email || !password) {
-    throw Error('All fields must be filled');
-  }
-  if (!validator.isEmail(email)) {
-    throw Error('Email not valid');
-  }
-  
   const exists = await this.findOne({ email });
-
-  if (exists) {
-    throw Error('Email already in use');
-  }
+  if (exists) throw Error('Email already in use');
 
   const salt = await bcrypt.genSalt(10);
   const hash = await bcrypt.hash(password, salt);
 
-  const user = await this.create({ email, password: hash, role, code, name });
-
+  const user = await this.create({ email, password: hash, role, name, classes: [] });
   return user;
 };
 
 // static login method
 userSchema.statics.login = async function(email, password) {
-
-  if (!email || !password) {
-    throw Error('All fields must be filled');
-  }
+  if (!email || !password) throw Error('All fields must be filled');
 
   const user = await this.findOne({ email });
-  if (!user) {
-    throw Error('No account found with this email');
-  }
+  if (!user) throw Error('Incorrect email');
 
   const match = await bcrypt.compare(password, user.password);
-  if (!match) {
-    throw Error('Incorrect password');
-  }
+  if (!match) throw Error('Incorrect password');
 
   return user;
 };
