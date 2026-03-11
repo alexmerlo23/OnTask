@@ -3,25 +3,25 @@ const mongoose = require('mongoose');
 
 // Get all events
 const getEvents = async (req, res) => {
-  const userEmail = req.user.email;
-  const userRole = req.user.role;
-  const userCode = req.user.code;
-
-  console.log('getEvents called:', { userEmail, userRole, userCode });
+  const userEmail   = req.user.email;
+  const userRole    = req.user.role;
+  const userClasses = req.user.classes || [];
 
   try {
     let events;
 
     if (userRole === 'student') {
-      events = await Event.find({ classroom: userCode }).sort({ createdAt: -1 });
-      console.log('Student events found:', events.length, 'for code:', userCode);
-  
-      // Add this to see what classroom values actually exist in the DB
-      const allEvents = await Event.find({ email: 'englishteacher@gmail.com' });
-      console.log('Teacher events classroom values:', allEvents.map(e => e.classroom));
+      // Pull all class codes the student is enrolled in and fetch events for all of them
+      const classCodes = userClasses.map((c) => c.code).filter(Boolean);
+
+      if (classCodes.length === 0) {
+        return res.status(200).json([]); // not enrolled in anything yet
+      }
+
+      events = await Event.find({ classroom: { $in: classCodes } }).sort({ createdAt: -1 });
     } else {
+      // Teachers see all events they created
       events = await Event.find({ email: userEmail }).sort({ createdAt: -1 });
-      console.log('Teacher events found:', events.length, 'for email:', userEmail);
     }
 
     res.status(200).json(events);
@@ -40,14 +40,13 @@ const getEvent = async (req, res) => {
   }
 
   try {
-    // search event by event id
     const event = await Event.findById(id);
     if (!event) {
       return res.status(404).json({ error: 'No such event' });
     }
     res.status(200).json(event);
   } catch (error) {
-    console.error("Error fetching event:", error); // Log error if there's an issue
+    console.error("Error fetching event:", error);
     res.status(500).json({ error: 'Failed to fetch event' });
   }
 };
@@ -55,21 +54,18 @@ const getEvent = async (req, res) => {
 // Create new event
 const createEvent = async (req, res) => {
   const { text, type, color, start, end, classroom } = req.body;
-  
-  // Ensure email is extracted from authenticated user
+
   if (!req.user || !req.user.email) {
     return res.status(401).json({ error: 'User authentication failed' });
   }
   const email = req.user.email;
 
-  // make sure all fields are filled
   let emptyFields = [];
-
-  if (!text) emptyFields.push('text');
-  if (!type) emptyFields.push('type');
-  if (!color) emptyFields.push('color');
-  if (!start) emptyFields.push('start');
-  if (!end) emptyFields.push('end');
+  if (!text)      emptyFields.push('text');
+  if (!type)      emptyFields.push('type');
+  if (!color)     emptyFields.push('color');
+  if (!start)     emptyFields.push('start');
+  if (!end)       emptyFields.push('end');
   if (!classroom) emptyFields.push('classroom');
 
   if (emptyFields.length > 0) {
@@ -77,17 +73,7 @@ const createEvent = async (req, res) => {
   }
 
   try {
-    // create the event with user's email
-    const event = await Event.create({ 
-      text, 
-      type, 
-      color, 
-      start, 
-      end, 
-      classroom,
-      email 
-    });
-    console.log("Event saved:", event);
+    const event = await Event.create({ text, type, color, start, end, classroom, email });
     res.status(200).json(event);
   } catch (error) {
     console.error("Error creating event:", error);
@@ -104,13 +90,13 @@ const deleteEvent = async (req, res) => {
   }
 
   try {
-    const event = await Event.findOneAndDelete({ _id: id }); // searches event by id and deletes it
+    const event = await Event.findOneAndDelete({ _id: id });
     if (!event) {
       return res.status(400).json({ error: 'No such event' });
     }
     res.status(200).json(event);
   } catch (error) {
-    console.error("Error deleting event:", error); // Log error if deletion fails
+    console.error("Error deleting event:", error);
     res.status(500).json({ error: 'Failed to delete event' });
   }
 };
@@ -124,24 +110,19 @@ const updateEvent = async (req, res) => {
   }
 
   try {
-    // searches the event by id and updates the changes
-    const event = await Event.findOneAndUpdate({ _id: id }, {
-      ...req.body,
-    }, { new: true });
+    const event = await Event.findOneAndUpdate(
+      { _id: id },
+      { ...req.body },
+      { new: true }
+    );
     if (!event) {
       return res.status(400).json({ error: 'No such event' });
     }
     res.status(200).json(event);
   } catch (error) {
-    console.error("Error updating event:", error); // Log error if update fails
+    console.error("Error updating event:", error);
     res.status(500).json({ error: 'Failed to update event' });
   }
 };
 
-module.exports = {
-  getEvents,
-  getEvent,
-  createEvent,
-  deleteEvent,
-  updateEvent,
-};
+module.exports = { getEvents, getEvent, createEvent, deleteEvent, updateEvent };
