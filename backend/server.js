@@ -11,10 +11,17 @@ const completionRoutes  = require('./routes/completions');
 const app = express();
 
 // CORS configuration
+let corsOrigin;
+if (process.env.NODE_ENV === 'production') {
+  corsOrigin = 'https://ontask-1.onrender.com';
+} else if (process.env.NODE_ENV === 'development') {
+  corsOrigin = 'https://ontaskfrontenddev.onrender.com';
+} else {
+  corsOrigin = 'http://localhost:3000';
+}
+
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production'
-    ? ['https://ontask-1.onrender.com']
-    : 'http://localhost:3000',
+  origin: corsOrigin,
   methods: ['GET', 'POST', 'PATCH', 'DELETE'],
   credentials: true,
   allowedHeaders: ['Content-Type', 'Authorization']
