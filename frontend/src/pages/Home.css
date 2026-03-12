@@ -116,10 +116,3 @@
   font-size: 0.75em;
   color: #aaa;
 }
-
-/* ── Responsive ─────────────────────────────────────────────────────────────── */
-@media (max-width: 768px) {
-  .home {
-    grid-template-columns: 1fr;
-  }
-}
