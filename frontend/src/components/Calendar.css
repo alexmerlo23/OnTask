@@ -13,6 +13,19 @@
   padding: 10px;
 }
 
+/* Override DayPilot event border/outline color to black */
+.dpc-event, .dpc-event.dpc-event-main, .dpc-event.dpc-event-selected, .dpc-event.dpc-event-move, .dpc-event.dpc-event-resize {
+  border-color: #000 !important;
+  outline: 1.5px solid #000 !important;
+  box-shadow: none !important;
+}
+
+/* Remove any green focus/active outline */
+.dpc-event:focus, .dpc-event:active {
+  outline: 1.5px solid #000 !important;
+  box-shadow: none !important;
+}
+
 /* ── Shared modal base ──────────────────────────────────────────────────────── */
 .modal-overlay {
   position: fixed;
