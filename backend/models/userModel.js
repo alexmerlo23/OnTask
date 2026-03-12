@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
+const bcrypt    = require('bcrypt');
 const validator = require('validator');
 
 const Schema = mongoose.Schema;
@@ -15,29 +15,33 @@ const classRefSchema = new Schema({
 
 const userSchema = new Schema({
   email: {
-    type: String,
+    type:     String,
     required: true,
-    unique: true
+    unique:   true
   },
   password: {
-    type: String,
+    type:     String,
     required: true
   },
   role: {
-    type: String,
+    type:    String,
     required: false,
-    enum: ['student', 'teacher'],
+    enum:    ['student', 'teacher'],
     default: 'student'
   },
-  // Replaces the old single `code` string field.
   // Teachers store classes they created; students store classes they joined.
   classes: {
-    type: [classRefSchema],
+    type:    [classRefSchema],
     default: []
   },
   name: {
-    type: String,
+    type:     String,
     required: true
+  },
+  // Students only — set by the student/parent; used to verify assignment completion
+  parentCode: {
+    type:    String,
+    default: ''
   }
 });
 

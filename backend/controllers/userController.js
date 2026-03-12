@@ -1,6 +1,6 @@
-const User = require('../models/userModel');
+const User  = require('../models/userModel');
 const Class = require('../models/classModel');
-const jwt = require('jsonwebtoken');
+const jwt   = require('jsonwebtoken');
 
 const createToken = (_id) => {
   return jwt.sign({ _id }, process.env.SECRET, { expiresIn: '3d' });
@@ -8,10 +8,11 @@ const createToken = (_id) => {
 
 // Helper: build the safe user payload sent to the client
 const buildUserPayload = (user, token) => ({
-  email:   user.email,
-  role:    user.role,
-  name:    user.name,
-  classes: user.classes,
+  email:      user.email,
+  role:       user.role,
+  name:       user.name,
+  classes:    user.classes,
+  parentCode: user.parentCode || '',
   token
 });
 
@@ -40,7 +41,6 @@ const signupUser = async (req, res) => {
 };
 
 // POST /api/user/join  (students only)
-// Body: { code }  — look up the class and add it to the student's classes array
 const joinClass = async (req, res) => {
   const { code } = req.body;
   const authUser = req.user;
@@ -53,16 +53,13 @@ const joinClass = async (req, res) => {
   }
 
   try {
-    // Verify the class exists
     const classroom = await Class.findOne({ code });
     if (!classroom) {
       return res.status(404).json({ error: 'No class found with that code' });
     }
 
-    // Reload user from DB so we have the full document
     const user = await User.findById(authUser._id);
 
-    // Check not already enrolled
     const alreadyJoined = user.classes.some((c) => c.code === code);
     if (alreadyJoined) {
       return res.status(400).json({ error: 'You have already joined this class' });
@@ -75,7 +72,6 @@ const joinClass = async (req, res) => {
     });
 
     await user.save();
-
     res.status(200).json({ classes: user.classes });
   } catch (err) {
     console.error('Error joining class:', err);
@@ -84,7 +80,6 @@ const joinClass = async (req, res) => {
 };
 
 // DELETE /api/user/leave/:code  (students only)
-// Remove a class from the student's enrolled list
 const leaveClass = async (req, res) => {
   const { code } = req.params;
   const authUser = req.user;
@@ -111,4 +106,32 @@ const leaveClass = async (req, res) => {
   }
 };
 
-module.exports = { signupUser, loginUser, joinClass, leaveClass };
+// PATCH /api/user/parent-code  (students only)
+// Body: { parentCode }
+// Allows a student/parent to set or update the account's parent verification code
+const setParentCode = async (req, res) => {
+  const { parentCode } = req.body;
+  const authUser       = req.user;
+
+  if (authUser.role !== 'student') {
+    return res.status(403).json({ error: 'Only student accounts can set a parent code' });
+  }
+  if (!parentCode || parentCode.trim().length < 4) {
+    return res.status(400).json({ error: 'Parent code must be at least 4 characters' });
+  }
+
+  try {
+    const user       = await User.findByIdAndUpdate(
+      authUser._id,
+      { parentCode: parentCode.trim() },
+      { new: true }
+    );
+    const token      = req.headers.authorization.split(' ')[1]; // reuse existing token
+    res.status(200).json(buildUserPayload(user, token));
+  } catch (err) {
+    console.error('Error setting parent code:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+module.exports = { signupUser, loginUser, joinClass, leaveClass, setParentCode };

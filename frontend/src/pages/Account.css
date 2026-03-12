@@ -3,7 +3,7 @@
   max-width: 800px;
   margin: 40px auto;
   background: #fff;
-  padding: 20px;
+  padding: 28px 32px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
@@ -31,7 +31,75 @@
   font-weight: 500;
   text-decoration: none;
 }
+.account__manage-link:hover { text-decoration: underline; }
 
-.account__manage-link:hover {
+/* ── Parent code section ────────────────────────────────────────────────────── */
+.account__parent-code {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid #eee;
+}
+
+.account__code-set     { color: #1aac83; font-weight: 600; }
+.account__code-missing { color: #e7195a; font-weight: 600; }
+
+.account__link-btn {
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-family: "Poppins";
+  font-size: 0.92em;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 8px;
   text-decoration: underline;
 }
+
+.account__hint {
+  font-size: 0.88em;
+  color: #888;
+  margin-top: 4px;
+  margin-bottom: 0;
+}
+
+.account__code-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.account__code-input {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-family: "Poppins";
+  font-size: 0.92em;
+  flex: 1;
+  min-width: 200px;
+  margin: 0;           /* override global input margin */
+  width: auto;
+  display: inline;
+}
+
+.account__save-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 18px;
+  font-family: "Poppins";
+  font-size: 0.92em;
+  cursor: pointer;
+}
+.account__save-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.account__msg {
+  width: 100%;
+  font-size: 0.88em;
+  margin: 2px 0 0;
+}
+.account__msg--error   { color: var(--error); }
+.account__msg--success { color: var(--primary); }

@@ -1,24 +1,24 @@
 require('dotenv').config();
 
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-const userRoutes = require('./routes/user');
-const eventRoutes = require('./routes/event');
-const classRoutes = require('./routes/classroom');
+const express    = require('express');
+const mongoose   = require('mongoose');
+const cors       = require('cors');
+const userRoutes        = require('./routes/user');
+const eventRoutes       = require('./routes/event');
+const classRoutes       = require('./routes/classroom');
+const completionRoutes  = require('./routes/completions');
 
 const app = express();
 
 // CORS configuration
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://ontask-1.onrender.com', 'https://ontask-1.onrender.com'] 
+  origin: process.env.NODE_ENV === 'production'
+    ? ['https://ontask-1.onrender.com']
     : 'http://localhost:3000',
   methods: ['GET', 'POST', 'PATCH', 'DELETE'],
   credentials: true,
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
-
 
 // Middleware
 app.use(express.json());
@@ -29,9 +29,10 @@ app.use((req, res, next) => {
 });
 
 // Routes
-app.use('/api/user', userRoutes);
-app.use('/api/events', eventRoutes);
-app.use('/api/classes', classRoutes);
+app.use('/api/user',        userRoutes);
+app.use('/api/events',      eventRoutes);
+app.use('/api/classes',     classRoutes);
+app.use('/api/completions', completionRoutes);
 
 // Global error-handling middleware
 app.use((err, req, res, next) => {
@@ -43,7 +44,6 @@ app.use((err, req, res, next) => {
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
-    // Listen for requests
     const port = process.env.PORT || 3001;
     app.listen(port, () => {
       console.log('Connected to MongoDB & listening on port', port);
@@ -51,5 +51,5 @@ mongoose.connect(process.env.MONGO_URI)
   })
   .catch((error) => {
     console.error('MongoDB connection error:', error);
-    process.exit(1); // Exit if MongoDB fails to connect
+    process.exit(1);
   });

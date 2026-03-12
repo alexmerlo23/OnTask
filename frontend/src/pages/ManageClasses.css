@@ -5,36 +5,18 @@
   padding: 0 20px 60px;
 }
 
-.mc-header {
-  margin-bottom: 36px;
-  border-bottom: 2px solid #e8e8e8;
-  padding-bottom: 20px;
-}
-
-.mc-header__title {
-  font-size: 2em;
-  color: var(--primary);
-  margin: 0 0 6px;
-}
-
-.mc-header__sub {
-  color: #777;
-  font-size: 0.95em;
-  margin: 0;
-}
+.mc-header { margin-bottom: 36px; border-bottom: 2px solid #e8e8e8; padding-bottom: 20px; }
+.mc-header__title { font-size: 2em; color: var(--primary); margin: 0 0 6px; }
+.mc-header__sub { color: #777; font-size: 0.95em; margin: 0; }
 
 /* ── Panel / section wrappers ───────────────────────────────────────────────── */
-.mc-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 36px;
-}
+.mc-panel { display: flex; flex-direction: column; gap: 36px; }
 
 .mc-section {
   background: #fff;
   border-radius: 10px;
   padding: 24px 28px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
 }
 
 .mc-section__title {
@@ -47,16 +29,8 @@
   gap: 8px;
 }
 
-.mc-section__icon {
-  font-size: 1.1em;
-}
-
 /* ── Class cards ────────────────────────────────────────────────────────────── */
-.mc-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
+.mc-list { display: flex; flex-direction: column; gap: 10px; }
 
 .mc-card {
   display: flex;
@@ -68,32 +42,12 @@
   padding: 14px 18px;
   transition: box-shadow 0.2s;
 }
+.mc-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
 
-.mc-card:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-.mc-card__body {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.mc-card__name {
-  font-weight: 600;
-  color: #1a1a1a;
-  font-size: 0.98em;
-}
-
-.mc-card__code {
-  font-size: 0.85em;
-  color: #555;
-}
-
-.mc-card__meta {
-  font-size: 0.82em;
-  color: #888;
-}
+.mc-card__body { display: flex; flex-direction: column; gap: 2px; }
+.mc-card__name { font-weight: 600; color: #1a1a1a; font-size: 0.98em; }
+.mc-card__code { font-size: 0.85em; color: #555; }
+.mc-card__meta { font-size: 0.82em; color: #888; }
 
 /* ── Buttons ────────────────────────────────────────────────────────────────── */
 .mc-btn {
@@ -106,30 +60,12 @@
   cursor: pointer;
   transition: transform 0.15s, opacity 0.15s;
 }
-
-.mc-btn:hover {
-  transform: scale(1.04);
-  opacity: 0.9;
-}
-
-.mc-btn--primary {
-  background: var(--primary);
-  color: #fff;
-  margin-top: 6px;
-}
-
-.mc-btn--danger {
-  background: #fff;
-  color: var(--error);
-  border: 1.5px solid var(--error);
-}
+.mc-btn:hover { transform: scale(1.04); opacity: 0.9; }
+.mc-btn--primary { background: var(--primary); color: #fff; margin-top: 6px; }
+.mc-btn--danger  { background: #fff; color: var(--error); border: 1.5px solid var(--error); }
 
 /* ── Create / Join form ─────────────────────────────────────────────────────── */
-.mc-form__row {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-}
+.mc-form__row { display: flex; gap: 16px; flex-wrap: wrap; }
 
 .mc-form__label {
   display: flex;
@@ -152,37 +88,171 @@
   box-sizing: border-box;
   margin: 0;
 }
-
-.mc-form__input:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(26, 172, 131, 0.12);
-}
+.mc-form__input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(26,172,131,0.12); }
 
 /* ── Status messages ────────────────────────────────────────────────────────── */
-.mc-msg {
-  padding: 10px 14px;
-  border-radius: 6px;
-  font-size: 0.9em;
-  margin-bottom: 4px;
-}
-
-.mc-msg--error {
-  background: #ffefef;
-  border: 1px solid var(--error);
-  color: var(--error);
-}
-
-.mc-msg--success {
-  background: #edfaf4;
-  border: 1px solid var(--primary);
-  color: #0f7a59;
-}
+.mc-msg { padding: 10px 14px; border-radius: 6px; font-size: 0.9em; margin-bottom: 4px; }
+.mc-msg--error   { background: #ffefef; border: 1px solid var(--error); color: var(--error); }
+.mc-msg--success { background: #edfaf4; border: 1px solid var(--primary); color: #0f7a59; }
 
 /* ── Empty / loading states ─────────────────────────────────────────────────── */
-.mc-empty,
-.mc-loading {
-  color: #999;
-  font-size: 0.92em;
-  padding: 12px 0;
+.mc-empty, .mc-loading { color: #999; font-size: 0.92em; padding: 12px 0; }
+
+/* ── Stats modal ────────────────────────────────────────────────────────────── */
+.mc-stats-modal {
+  background: #fff;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 680px;
+  max-height: 82vh;
+  overflow-y: auto;
+  padding: 28px 32px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
 }
+
+.mc-stats-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.mc-stats-modal__title { font-size: 1.4em; color: var(--primary); margin: 0; }
+
+.mc-stats-modal__close {
+  background: none;
+  border: none;
+  font-size: 1.3em;
+  cursor: pointer;
+  color: #888;
+  line-height: 1;
+  padding: 2px 6px;
+}
+.mc-stats-modal__close:hover { color: #333; }
+
+/* ── Summary cards row ──────────────────────────────────────────────────────── */
+.mc-stats-summary {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.mc-stats-card {
+  flex: 1;
+  min-width: 120px;
+  background: #f4fdf9;
+  border: 1px solid #c3eed9;
+  border-radius: 10px;
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.mc-stats-card__value { font-size: 2em; font-weight: 700; color: var(--primary); line-height: 1; }
+.mc-stats-card__label { font-size: 0.8em; color: #666; text-align: center; }
+
+/* ── Tabs ───────────────────────────────────────────────────────────────────── */
+.mc-tabs { display: flex; gap: 6px; margin-bottom: 18px; border-bottom: 2px solid #eee; padding-bottom: 0; }
+
+.mc-tab {
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  font-family: "Poppins";
+  font-size: 0.92em;
+  font-weight: 500;
+  color: #888;
+  padding: 8px 16px;
+  cursor: pointer;
+  margin-bottom: -2px;
+  border-radius: 4px 4px 0 0;
+  transition: color 0.15s;
+}
+.mc-tab--active { color: var(--primary); border-bottom-color: var(--primary); }
+.mc-tab:hover:not(.mc-tab--active) { color: #444; }
+
+/* ── Event rows ─────────────────────────────────────────────────────────────── */
+.mc-stats-events { display: flex; flex-direction: column; gap: 16px; }
+
+.mc-event-row {
+  background: #fafafa;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+
+.mc-event-row__top {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.mc-event-row__name  { font-weight: 600; font-size: 0.97em; color: #1a1a1a; flex: 1; }
+.mc-event-row__type  { font-size: 0.78em; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--primary); background: #edfaf4; border-radius: 4px; padding: 2px 7px; }
+.mc-event-row__date  { font-size: 0.82em; color: #888; }
+.mc-event-row__pending { font-size: 0.83em; color: #e7195a; margin: 6px 0 0; }
+
+/* ── Progress bar ───────────────────────────────────────────────────────────── */
+.mc-progress {
+  position: relative;
+  background: #eee;
+  border-radius: 99px;
+  height: 20px;
+  overflow: hidden;
+}
+
+.mc-progress__bar {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 99px;
+  transition: width 0.4s ease;
+  min-width: 2px;
+}
+
+.mc-progress__label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78em;
+  font-weight: 600;
+  color: #fff;
+  mix-blend-mode: difference;
+  pointer-events: none;
+}
+
+/* ── Student table ──────────────────────────────────────────────────────────── */
+.mc-stats-students { overflow-x: auto; }
+
+.mc-student-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9em;
+}
+
+.mc-student-table th {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 2px solid #eee;
+  font-weight: 600;
+  color: #555;
+  font-size: 0.88em;
+}
+
+.mc-student-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #f3f3f3;
+  color: #333;
+}
+
+.mc-student-table tr:last-child td { border-bottom: none; }
+.mc-student-table tr:hover td { background: #fafafa; }
+
+.mc-cell--ok   { color: var(--primary); font-weight: 600; text-align: center; }
+.mc-cell--warn { color: #e7195a;        font-weight: 600; text-align: center; }
