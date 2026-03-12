@@ -2,10 +2,12 @@
 .calendar_default_event_inner {
   background: #2e78d6;
   color: #fff !important;
-  border: none;
+  border: 1.5px solid #000 !important; /* Force black border */
   border-radius: 5px;
   font-size: 10pt;
   padding: 5px;
+  outline: none !important; /* Remove any outline */
+  box-shadow: none !important; /* Remove any shadow */
 }
 
 .calendar-error {
