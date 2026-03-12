@@ -234,31 +234,30 @@ const Calendar = ({ startDate, events = [], onDeleteEvent, onEditEvent }) => {
 
       {/* ── Event info modal ── */}
       {isModalOpen && selectedEvent && (
-        <div className="emodal-overlay">
-          <div className="emodal-content">
-            <h1 className="emodal-title">Event Info</h1>
-            <div className="emodal-section">
-              <h3 className="emodal-label">Event Title:</h3>
-              <p className="emodal-info">{selectedEvent.text}</p>
-            </div>
-            <div className="emodal-section">
-              <h3 className="emodal-label">Event Type:</h3>
-              <p className="emodal-info">{selectedEvent.type}</p>
-            </div>
-            <div className="emodal-section">
-              <h3 className="emodal-label">Event Color:</h3>
-              <div className="emodal-color-preview" style={{ backgroundColor: selectedEvent.backColor }}/>
-            </div>
-            <div className="emodal-section">
-              <h3 className="emodal-label">Date/Time:</h3>
-              <div className="emodal-info">
-                <p>Start: {new Date(selectedEvent.start).toLocaleString()}</p>
-                <p>End: {new Date(selectedEvent.end).toLocaleString()}</p>
-              </div>
-            </div>
-            <button type="button" onClick={closeModal} className="close-modal">Close</button>
-          </div>
-        </div>
+        <EventStatsModal
+          event={selectedEvent}
+          user={user}
+          onClose={closeModal}
+          onEdit={event => { setIsModalOpen(false); openEditModal(event); }}
+          onDelete={event => { setIsModalOpen(false); onDeleteEvent && onDeleteEvent(event.id); }}
+          onVerify={async (parentCode) => {
+            setIsVerifying(true);
+            setVerifyError("");
+            try {
+              const res = await fetch(`${API_URL}/api/completions`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user.token}` },
+                body: JSON.stringify({ eventId: selectedEvent.id, classCode: selectedEvent.classroom, parentCode })
+              });
+              const json = await res.json();
+              if (!res.ok) throw new Error(json.error || 'Verification failed');
+              setCompletedEventIds(prev => new Set([...prev, selectedEvent.id]));
+            } finally {
+              setIsVerifying(false);
+            }
+          }}
+          isVerified={user && user.role === 'student' && completedEventIds.has(selectedEvent.id)}
+        />
       )}
 
       {/* ── Edit event modal ── */}
@@ -266,15 +265,13 @@ const Calendar = ({ startDate, events = [], onDeleteEvent, onEditEvent }) => {
         <div className="modal-overlay">
           <div className="modal-content">
             <form className="create" onSubmit={handleSubmit}>
-              <h3>Edit Event</h3>
+              <h3>{selectedEvent ? 'Edit Event' : 'Add Event'}</h3>
               <label>Event Title:</label>
-              <input type="text" onChange={e => setText(e.target.value)} value={text} />
+              <input type="text" onChange={e => setText(e.target.value)} value={text} required />
               <label>Event Type:</label>
               <div className="event-types">
                 {typeOptions.map(opt => (
-                  <button key={opt} type="button" className="event-type-button"
-                    onClick={() => setType(opt)}
-                    style={{ background: type === opt ? 'var(--primary)' : '#fff', color: type === opt ? '#fff' : 'var(--primary)', border: '2px solid var(--primary)', padding: '6px 10px', borderRadius: '4px', fontFamily: 'Poppins', cursor: 'pointer', fontSize: '1em', margin: '2px' }}>
+                  <button key={opt} type="button" className={`event-type-button${type === opt ? ' selected' : ''}`} onClick={() => setType(opt)}>
                     {opt}
                   </button>
                 ))}
@@ -282,16 +279,15 @@ const Calendar = ({ startDate, events = [], onDeleteEvent, onEditEvent }) => {
               <label>Event Color:</label>
               <div className="color-picker">
                 {colorOptions.map(opt => (
-                  <div key={opt} className={`color-circle ${color === opt ? 'selected' : ''}`}
-                    style={{ backgroundColor: opt }} onClick={() => setColor(opt)} />
+                  <div key={opt} className={`color-circle${color === opt ? ' selected' : ''}`} style={{ backgroundColor: opt }} onClick={() => setColor(opt)} />
                 ))}
               </div>
               <label>Date:</label>
-              <input type="date" onChange={e => setDate(e.target.value)} value={date} />
+              <input type="date" onChange={e => setDate(e.target.value)} value={date} required />
               <label>Start Time:</label>
-              <input type="time" onChange={e => setStartTime(e.target.value)} value={startTime} />
+              <input type="time" onChange={e => setStartTime(e.target.value)} value={startTime} required />
               <label>End Time:</label>
-              <input type="time" onChange={e => setEndTime(e.target.value)} value={endTime} />
+              <input type="time" onChange={e => setEndTime(e.target.value)} value={endTime} required />
               <button type="submit" className="submit">Save</button>
               {editError && <div className="error">{editError}</div>}
               <button type="button" onClick={closeEditModal} className="submit">Close</button>
@@ -326,6 +322,160 @@ const Calendar = ({ startDate, events = [], onDeleteEvent, onEditEvent }) => {
           </div>
         </div>
       )}
+    </div>
+  );
+};
+
+// EventStatsModal component for event completion stats
+const EventStatsModal = ({ event, user, onClose, onEdit, onDelete, onVerify, isVerified }) => {
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [showVerify, setShowVerify] = useState(false);
+  const [parentCodeInput, setParentCodeInput] = useState("");
+  const [verifyError, setVerifyError] = useState("");
+  const [isVerifying, setIsVerifying] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/completions/class-stats/${event.classroom}`,
+          { headers: { Authorization: `Bearer ${user.token}` } });
+        const json = await res.json();
+        if (!res.ok) throw new Error(json.error || "Failed to load stats");
+        // Find this event's stats
+        const ev = (json.eventStats || []).find(e => e.eventId === event.id);
+        setStats(ev ? { ...ev, totalStudents: ev.totalStudents } : null);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [event, user]);
+
+  // Completion bar effect
+  const CompletionBar = ({ completed, total }) => {
+    const pct = total === 0 ? 0 : Math.round((completed / total) * 100);
+    return (
+      <div style={{ margin: '10px 0 6px 0' }}>
+        <div style={{
+          background: '#eee',
+          borderRadius: '8px',
+          height: '18px',
+          width: '100%',
+          overflow: 'hidden',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
+        }}>
+          <div style={{
+            width: `${pct}%`,
+            height: '100%',
+            background: pct === 100 ? 'var(--primary)' : 'linear-gradient(90deg, #1aac83 60%, #e7e7e7 100%)',
+            borderRadius: '8px',
+            transition: 'width 0.5s cubic-bezier(.4,2,.6,1)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: pct > 10 ? 'flex-end' : 'flex-start',
+            color: '#fff',
+            fontWeight: 600,
+            fontSize: '0.95em',
+            paddingRight: pct > 10 ? 10 : 0
+          }}>
+            {pct > 10 && `${pct}%`}
+          </div>
+        </div>
+        <div style={{ fontSize: '0.92em', color: '#555', marginTop: 2, textAlign: 'right' }}>
+          {completed} of {total} students completed
+        </div>
+      </div>
+    );
+  };
+
+  // Student/parent verify handler
+  const handleVerify = async (e) => {
+    e.preventDefault();
+    setIsVerifying(true);
+    setVerifyError("");
+    try {
+      await onVerify(parentCodeInput);
+      setShowVerify(false);
+      setParentCodeInput("");
+    } catch (err) {
+      setVerifyError(err.message || "Verification failed");
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
+  return (
+    <div className="emodal-overlay">
+      <div className="emodal-content" style={{ maxWidth: 420, minWidth: 320, padding: 28 }}>
+        <h1 className="emodal-title" style={{ fontSize: '1.4em', marginBottom: 18 }}>Event Details</h1>
+        <div className="emodal-section" style={{ marginBottom: 10 }}>
+          <span className="emodal-label" style={{ fontWeight: 600}}>Title:</span>
+          <span className="emodal-info" style={{ marginLeft: 8 }}>{event.text}</span>
+        </div>
+        <div className="emodal-section" style={{ marginBottom: 10 }}>
+          <span className="emodal-label" style={{ fontWeight: 600 }}>Type:</span>
+          <span className="emodal-info" style={{ marginLeft: 8 }}>{event.type}</span>
+        </div>
+        <div className="emodal-section" style={{ marginBottom: 10 }}>
+          <span className="emodal-label" style={{ fontWeight: 600 }}>Classroom:</span>
+          <span className="emodal-info" style={{ marginLeft: 8 }}>{event.classroom}</span>
+        </div>
+        <div className="emodal-section" style={{ marginBottom: 10 }}>
+          <span className="emodal-label" style={{ fontWeight: 600 }}>Date/Time:</span>
+          <span className="emodal-info" style={{ marginLeft: 8 }}>
+            {new Date(event.start).toLocaleString()}<br/>
+            <span style={{ color: '#888', fontSize: '0.97em' }}>to</span> {new Date(event.end).toLocaleString()}
+          </span>
+        </div>
+        {/* Completion stats */}
+        <div className="emodal-section" style={{ marginTop: 18 }}>
+          <span className="emodal-label" style={{ fontWeight: 600 }}>Completion:</span>
+          {loading && <p style={{ margin: '10px 0' }}>Loading…</p>}
+          {error && <p style={{ color: 'var(--error)', margin: '10px 0' }}>{error}</p>}
+          {stats && (
+            <CompletionBar completed={stats.completedCount} total={stats.totalStudents} />
+          )}
+          {!loading && !error && !stats && (
+            <p className="emodal-info">No completion data for this event.</p>)}
+        </div>
+        {/* Bottom row for actions */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, marginTop: 24 }}>
+          <div style={{ display: 'flex', gap: 12 }}>
+            {user && user.role === 'teacher' && (
+              <>
+                <button onClick={() => onEdit(event)} style={{ background: '#1aac83', color: '#fff', border: 'none', borderRadius: 6, padding: '8px 18px', fontWeight: 600, fontSize: '1em', cursor: 'pointer' }}>Edit</button>
+                <button onClick={() => onDelete(event)} style={{ background: '#e7195a', color: '#fff', border: 'none', borderRadius: 6, padding: '8px 18px', fontWeight: 600, fontSize: '1em', cursor: 'pointer' }}>Delete</button>
+              </>
+            )}
+            {user && user.role === 'student' && !isVerified && (
+              <>
+                {showVerify ? (
+                  <form onSubmit={handleVerify} style={{ display: 'flex', flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+                    <input
+                      type="password"
+                      value={parentCodeInput}
+                      onChange={e => setParentCodeInput(e.target.value)}
+                      placeholder="Enter parent code"
+                      style={{ padding: 8, borderRadius: 4, border: '1px solid #ccc' }}
+                      required
+                    />
+                    <button type="submit" disabled={isVerifying} style={{ background: 'var(--primary)', color: '#fff', border: 'none', borderRadius: 6, padding: '8px 18px', fontWeight: 600, fontSize: '1em', cursor: 'pointer' }}>
+                      {isVerifying ? 'Verifying…' : 'Verify'}
+                    </button>
+                    {verifyError && <div style={{ color: 'var(--error)', fontSize: '0.95em' }}>{verifyError}</div>}
+                  </form>
+                ) : (
+                  <button onClick={() => setShowVerify(true)} style={{ background: 'var(--primary)', color: '#fff', border: 'none', borderRadius: 6, padding: '8px 18px', fontWeight: 600, fontSize: '1em', cursor: 'pointer' }}>Enter Parent Code</button>
+                )}
+              </>
+            )}
+          </div>
+          <button type="button" onClick={onClose} className="close-modal" style={{ background: 'var(--primary)', color: '#fff', border: 'none', borderRadius: 6, padding: '8px 22px', fontWeight: 600, fontSize: '1em', cursor: 'pointer', marginLeft: 'auto' }}>Close</button>
+        </div>
+      </div>
     </div>
   );
 };

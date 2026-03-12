@@ -59,10 +59,6 @@ const getMyCompletions = async (req, res) => {
 const getClassStats = async (req, res) => {
   const { classCode } = req.params;
 
-  if (req.user.role !== 'teacher') {
-    return res.status(403).json({ error: 'Teachers only' });
-  }
-
   try {
     // All students enrolled in this class
     const students = await User.find({
