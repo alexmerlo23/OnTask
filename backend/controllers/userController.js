@@ -107,10 +107,10 @@ const leaveClass = async (req, res) => {
 };
 
 // PATCH /api/user/parent-code  (students only)
-// Body: { parentCode }
+// Body: { parentCode, currentCode }
 // Allows a student/parent to set or update the account's parent verification code
 const setParentCode = async (req, res) => {
-  const { parentCode } = req.body;
+  const { parentCode, currentCode } = req.body;
   const authUser       = req.user;
 
   if (authUser.role !== 'student') {
@@ -121,12 +121,19 @@ const setParentCode = async (req, res) => {
   }
 
   try {
-    const user       = await User.findByIdAndUpdate(
-      authUser._id,
-      { parentCode: parentCode.trim() },
-      { new: true }
-    );
-    const token      = req.headers.authorization.split(' ')[1]; // reuse existing token
+    const user = await User.findById(authUser._id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    // If a parent code is already set, require the current code to match
+    if (user.parentCode && user.parentCode.length > 0) {
+      if (!currentCode || currentCode !== user.parentCode) {
+        return res.status(401).json({ error: 'Current parent code is incorrect' });
+      }
+    }
+
+    user.parentCode = parentCode.trim();
+    await user.save();
+    const token = req.headers.authorization.split(' ')[1]; // reuse existing token
     res.status(200).json(buildUserPayload(user, token));
   } catch (err) {
     console.error('Error setting parent code:', err);

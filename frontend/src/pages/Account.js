@@ -8,6 +8,7 @@ import './Account.css';
 const ParentCodeSection = ({ user, dispatch }) => {
   const [editing,    setEditing]    = useState(false);
   const [codeInput,  setCodeInput]  = useState('');
+  const [currentCodeInput, setCurrentCodeInput] = useState('');
   const [error,      setError]      = useState('');
   const [success,    setSuccess]    = useState('');
   const [isLoading,  setIsLoading]  = useState(false);
@@ -19,13 +20,16 @@ const ParentCodeSection = ({ user, dispatch }) => {
     setIsLoading(true);
 
     try {
+      const body = user.parentCode
+        ? { parentCode: codeInput, currentCode: currentCodeInput }
+        : { parentCode: codeInput };
       const res = await fetch(`${API_URL}/api/user/parent-code`, {
         method:  'PATCH',
         headers: {
           'Content-Type': 'application/json',
           Authorization:  `Bearer ${user.token}`
         },
-        body: JSON.stringify({ parentCode: codeInput })
+        body: JSON.stringify(body)
       });
 
       const json = await res.json();
@@ -39,6 +43,7 @@ const ParentCodeSection = ({ user, dispatch }) => {
       setSuccess('Parent code saved!');
       setEditing(false);
       setCodeInput('');
+      setCurrentCodeInput('');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -68,6 +73,17 @@ const ParentCodeSection = ({ user, dispatch }) => {
 
       {editing && (
         <form className="account__code-form" onSubmit={handleSave}>
+          {user.parentCode && (
+            <input
+              type="password"
+              placeholder="Enter current parent code"
+              value={currentCodeInput}
+              onChange={e => setCurrentCodeInput(e.target.value)}
+              className="account__code-input"
+              minLength={4}
+              required
+            />
+          )}
           <input
             type="text"
             placeholder="Enter new parent code (min 4 chars)"
