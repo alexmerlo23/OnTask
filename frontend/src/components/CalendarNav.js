@@ -10,7 +10,7 @@ const CalendarNav = ({ setStartDate }) => {
       for (let entry of entries) {
         const colWidth = entry.contentRect.width;
         // 7 day columns + small padding on each side
-        const newCellWidth = Math.floor((colWidth - 16) / 7);
+        const newCellWidth = Math.floor((colWidth) / 7);
         setCellWidth(Math.max(10, newCellWidth)); // never smaller than 10
       }
     });
