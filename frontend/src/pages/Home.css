@@ -1,0 +1,127 @@
+/* ── Home grid layout ────────────────────────────────────────────────────────
+ * To resize columns, just change the three fr numbers below.
+ * Higher number = wider column. Calendar should always be the biggest.
+ * ────────────────────────────────────────────────────────────────────────── */
+.home {
+  display: grid;
+  grid-template-columns: 2fr 8fr 2fr;
+  gap: 0.1%;
+}
+
+/* Force the DayPilot navigator to fill its grid cell */
+.navigator-wrap {
+  width: 100%;
+  overflow: hidden;
+}
+
+.navigator-wrap table,
+.navigator-wrap td,
+.navigator-wrap th {
+  width: 100% !important;
+  box-sizing: border-box;
+}
+
+/* ── Upcoming Events sidebar ────────────────────────────────────────────────── */
+.upcoming {
+  width: 90%;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+  padding: 18px 16px;
+  height: fit-content;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+  position: sticky;
+  top: 20px;
+}
+
+.upcoming__title {
+  font-size: 1.05em;
+  font-weight: 600;
+  color: #222;
+  margin: 0 0 14px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #f1f1f1;
+}
+
+.upcoming__empty {
+  color: #aaa;
+  font-size: 0.88em;
+  text-align: center;
+  padding: 20px 0;
+}
+
+.upcoming__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.upcoming__item {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 10px 10px 0;
+  border-bottom: 1px solid #f3f3f3;
+}
+
+.upcoming__item:last-child {
+  border-bottom: none;
+}
+
+.upcoming__accent {
+  width: 4px;
+  min-width: 4px;
+  height: 100%;
+  min-height: 54px;
+  border-radius: 4px;
+  margin-top: 2px;
+}
+
+.upcoming__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.upcoming__name {
+  font-weight: 600;
+  font-size: 0.9em;
+  color: #1a1a1a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.upcoming__date {
+  font-size: 0.8em;
+  color: #555;
+}
+
+.upcoming__time {
+  font-size: 0.78em;
+  color: #888;
+}
+
+.upcoming__type {
+  font-size: 0.75em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.upcoming__class {
+  font-size: 0.75em;
+  color: #aaa;
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .home {
+    grid-template-columns: 1fr;
+  }
+}

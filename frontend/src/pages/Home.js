@@ -4,6 +4,7 @@ import { useEventsContext } from '../hooks/useEventsContext';
 import { useClassContext } from '../hooks/useClassContext';
 import CalendarNav from '../components/CalendarNav';
 import Calendar from '../components/Calendar';
+import './Home.css';
 
 // ─── Upcoming Events sidebar (students only) ──────────────────────────────────
 
@@ -98,8 +99,9 @@ const Home = () => {
 
 
   return (
-    <div className="home home--with-sidebar">
-      <div>
+    <div className="home">
+      {/* Home.js */}
+      <div className="navigator-wrap">
         <CalendarNav setStartDate={setStartDate} />
       </div>
       <div className="calendar">

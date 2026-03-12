@@ -1,35 +1,38 @@
-import React from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { DayPilotNavigator } from "@daypilot/daypilot-lite-react";
 
-// styling
-const styles = {
-  wrap: {
-    display: "flex"
-  },
-  left: {
-    marginRight: "10px"
-  },
-  main: {
-    flexGrow: "1"
-  }
-};
-
 const CalendarNav = ({ setStartDate }) => {
+  const wrapperRef = useRef(null);
+  const [cellWidth, setCellWidth] = useState(30);
+
+  useEffect(() => {
+    const observer = new ResizeObserver(entries => {
+      for (let entry of entries) {
+        const colWidth = entry.contentRect.width;
+        // 7 day columns + small padding on each side
+        const newCellWidth = Math.floor((colWidth - 16) / 7);
+        setCellWidth(Math.max(10, newCellWidth)); // never smaller than 10
+      }
+    });
+
+    if (wrapperRef.current) observer.observe(wrapperRef.current);
+    return () => observer.disconnect();
+  }, []);
+
   const handleTimeRangeSelected = args => {
-    setStartDate(args.day); // Call the function to update the start date
+    setStartDate(args.day);
   };
 
-  // navbar
   return (
-    <div style={styles.wrap}>
-      <div style={styles.left}>
-        <DayPilotNavigator
-          selectMode={"Week"}
-          showMonths={1}
-          skipMonths={1}
-          onTimeRangeSelected={handleTimeRangeSelected}
-        />
-      </div>
+    <div ref={wrapperRef} style={{ width: '100%' }}>
+      <DayPilotNavigator
+        selectMode={"Week"}
+        showMonths={1}
+        skipMonths={1}
+        onTimeRangeSelected={handleTimeRangeSelected}
+        cellWidth={cellWidth}
+        cellHeight={Math.floor(cellWidth * 0.75)}
+      />
     </div>
   );
 }

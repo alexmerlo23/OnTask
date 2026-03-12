@@ -1,6 +1,7 @@
 import { React, useState, useEffect } from 'react';
 import { DayPilotCalendar } from "@daypilot/daypilot-lite-react";
 import { useAuthContext } from '../hooks/useAuthContext';
+import './Calendar.css';
 
 const Calendar = ({ startDate, events = [], onDeleteEvent, onEditEvent }) => {
   const { user } = useAuthContext();

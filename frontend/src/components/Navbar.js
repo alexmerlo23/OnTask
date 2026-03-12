@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useAuthContext } from '../hooks/useAuthContext';
 import HamburgerMenu from './HamburgerMenu';
 import EventForm from '../components/CalendarForm';
+import './Navbar.css';
 
 const Navbar = ({ fetchEvents }) => {
   const { user } = useAuthContext();

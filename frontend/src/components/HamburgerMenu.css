@@ -1,0 +1,37 @@
+/* ── Hamburger container ────────────────────────────────────────────────────── */
+.hamburger-container {
+  position: relative;
+}
+
+/* ── Slide-out menu panel ───────────────────────────────────────────────────── */
+.hamburger-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 20%;
+  height: 100%;
+  background-color: rgba(255, 255, 255);
+  padding: 20px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.menu-content {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  margin-left: 10px;
+}
+
+.hamburger-menu a {
+  display: block;
+  margin: 20px 0;
+  font-size: 1em;
+  color: #333;
+  text-decoration: none;
+}

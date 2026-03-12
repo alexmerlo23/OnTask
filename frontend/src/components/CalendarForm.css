@@ -1,0 +1,107 @@
+/* ── Add Event button ───────────────────────────────────────────────────────── */
+.add-event-button {
+  background-color: #1aac83;
+  color: white;
+  width: 100px;
+  height: 40px;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.add-event-button:hover {
+  background-color: #179C74;
+  color: #fff;
+  transform: scale(1.05);
+}
+
+/* ── Event type selector buttons ────────────────────────────────────────────── */
+.event-types {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.event-type-button {
+  background: #fff;
+  color: var(--primary);
+  border: 2px solid var(--primary);
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-family: "Poppins";
+  cursor: pointer;
+  font-size: 1em;
+  margin: 2px;
+}
+
+/* ── Color picker ───────────────────────────────────────────────────────────── */
+.color-picker {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.color-circle {
+  width: 19px;
+  height: 19px;
+  border-radius: 50%;
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: transform 0.3s;
+}
+
+.color-circle:hover {
+  transform: scale(1.1);
+}
+
+.color-circle.selected {
+  border: 2px solid #000;
+}
+
+/* ── Class selector dropdown ────────────────────────────────────────────────── */
+.class-select {
+  display: block;
+  width: 100%;
+  padding: 9px 12px;
+  margin-top: 8px;
+  margin-bottom: 18px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-family: "Poppins";
+  font-size: 0.95em;
+  background: #fff;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.class-select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(26, 172, 131, 0.12);
+}
+
+.class-select.error {
+  border-color: var(--error);
+}
+
+/* ── No-class warning banner ────────────────────────────────────────────────── */
+.no-class-warning {
+  background: #fff8e1;
+  border: 1px solid #f5c842;
+  color: #7a5c00;
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 0.9em;
+  margin-bottom: 16px;
+}
+
+.no-class-warning a {
+  color: var(--primary);
+  font-weight: 500;
+}
+
+/* ── Required field marker ──────────────────────────────────────────────────── */
+.required {
+  color: var(--error);
+  margin-left: 2px;
+}

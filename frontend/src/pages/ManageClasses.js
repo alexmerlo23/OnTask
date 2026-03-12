@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useAuthContext } from "../hooks/useAuthContext";
 import API_URL from "../config/api";
+import './ManageClasses.css';
 
 // ─── Shared sub-components ────────────────────────────────────────────────────
 

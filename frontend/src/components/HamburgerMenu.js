@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useLogout } from '../hooks/useLogout';
 import { Squash as Hamburger } from 'hamburger-react'
+import './HamburgerMenu.css';
 
 const HamburgerMenu = () => {
   const { logout } = useLogout();

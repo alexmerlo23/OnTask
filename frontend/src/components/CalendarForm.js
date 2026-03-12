@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useEventsContext } from "../hooks/useEventsContext";
 import { useAuthContext } from '../hooks/useAuthContext';
+import './CalendarForm.css';
 
 // Returns { date, startTime, endTime } pre-filled to now → now+1hr in local time
 const getDefaultTimes = () => {

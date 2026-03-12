@@ -1,0 +1,188 @@
+/* ── Page shell ─────────────────────────────────────────────────────────────── */
+.mc-page {
+  max-width: 860px;
+  margin: 40px auto;
+  padding: 0 20px 60px;
+}
+
+.mc-header {
+  margin-bottom: 36px;
+  border-bottom: 2px solid #e8e8e8;
+  padding-bottom: 20px;
+}
+
+.mc-header__title {
+  font-size: 2em;
+  color: var(--primary);
+  margin: 0 0 6px;
+}
+
+.mc-header__sub {
+  color: #777;
+  font-size: 0.95em;
+  margin: 0;
+}
+
+/* ── Panel / section wrappers ───────────────────────────────────────────────── */
+.mc-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+
+.mc-section {
+  background: #fff;
+  border-radius: 10px;
+  padding: 24px 28px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+}
+
+.mc-section__title {
+  font-size: 1.15em;
+  font-weight: 600;
+  color: #222;
+  margin: 0 0 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mc-section__icon {
+  font-size: 1.1em;
+}
+
+/* ── Class cards ────────────────────────────────────────────────────────────── */
+.mc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mc-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f8f9fa;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 14px 18px;
+  transition: box-shadow 0.2s;
+}
+
+.mc-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.mc-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mc-card__name {
+  font-weight: 600;
+  color: #1a1a1a;
+  font-size: 0.98em;
+}
+
+.mc-card__code {
+  font-size: 0.85em;
+  color: #555;
+}
+
+.mc-card__meta {
+  font-size: 0.82em;
+  color: #888;
+}
+
+/* ── Buttons ────────────────────────────────────────────────────────────────── */
+.mc-btn {
+  border: none;
+  border-radius: 6px;
+  padding: 7px 16px;
+  font-family: "Poppins";
+  font-size: 0.85em;
+  font-weight: 500;
+  cursor: pointer;
+  transition: transform 0.15s, opacity 0.15s;
+}
+
+.mc-btn:hover {
+  transform: scale(1.04);
+  opacity: 0.9;
+}
+
+.mc-btn--primary {
+  background: var(--primary);
+  color: #fff;
+  margin-top: 6px;
+}
+
+.mc-btn--danger {
+  background: #fff;
+  color: var(--error);
+  border: 1.5px solid var(--error);
+}
+
+/* ── Create / Join form ─────────────────────────────────────────────────────── */
+.mc-form__row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.mc-form__label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.9em;
+  font-weight: 500;
+  color: #444;
+  flex: 1;
+  min-width: 180px;
+}
+
+.mc-form__input {
+  padding: 9px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-family: "Poppins";
+  font-size: 0.9em;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+}
+
+.mc-form__input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(26, 172, 131, 0.12);
+}
+
+/* ── Status messages ────────────────────────────────────────────────────────── */
+.mc-msg {
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 0.9em;
+  margin-bottom: 4px;
+}
+
+.mc-msg--error {
+  background: #ffefef;
+  border: 1px solid var(--error);
+  color: var(--error);
+}
+
+.mc-msg--success {
+  background: #edfaf4;
+  border: 1px solid var(--primary);
+  color: #0f7a59;
+}
+
+/* ── Empty / loading states ─────────────────────────────────────────────────── */
+.mc-empty,
+.mc-loading {
+  color: #999;
+  font-size: 0.92em;
+  padding: 12px 0;
+}
